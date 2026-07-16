@@ -120,7 +120,19 @@ async function pushToKlaviyo(
   }
 }
 
-async function sendViaResend(to: string, subject: string, text: string) {
+async function getShopSenderFrom(shop: string): Promise<string> {
+  const settings = await prisma.shopSettings.findUnique({
+    where: { shop },
+    select: { senderName: true, senderEmail: true },
+  });
+  const name = settings?.senderName?.trim();
+  const email = settings?.senderEmail?.trim();
+  if (name && email) return `${name} <${email}>`;
+  if (email) return email;
+  return DEFAULT_FROM;
+}
+
+async function sendViaResend(to: string, subject: string, text: string, from: string = DEFAULT_FROM) {
   if (!RESEND_API_KEY) {
     console.warn(`[email fallback - no RESEND_API_KEY set] to ${to}: ${subject}\n${text}`);
     return;
@@ -131,7 +143,7 @@ async function sendViaResend(to: string, subject: string, text: string) {
       Authorization: `Bearer ${RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from: DEFAULT_FROM, to: [to], subject, text }),
+    body: JSON.stringify({ from, to: [to], subject, text }),
   });
   if (!res.ok) {
     throw new Error(`Resend send failed: ${res.status} ${await res.text()}`);
@@ -144,16 +156,17 @@ async function sendBuiltInEmail(
   email: string,
   properties: Record<string, unknown>,
 ) {
-  const custom = await prisma.emailTemplate.findUnique({
-    where: { shop_event: { shop, event } },
-  });
+  const [custom, from] = await Promise.all([
+    prisma.emailTemplate.findUnique({ where: { shop_event: { shop, event } } }),
+    getShopSenderFrom(shop),
+  ]);
 
   if (custom && !custom.enabled) return; // merchant explicitly turned this email off
 
   const template = custom ?? DEFAULT_TEMPLATES[event];
   const subject = renderTemplate(template.subject, properties);
   const body = renderTemplate(template.body, properties);
-  await sendViaResend(email, subject, body);
+  await sendViaResend(email, subject, body, from);
 }
 
 export async function notify(
