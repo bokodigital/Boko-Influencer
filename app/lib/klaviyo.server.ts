@@ -23,7 +23,9 @@ export const KLAVIYO_EVENTS = [
 export type KlaviyoEvent = (typeof KLAVIYO_EVENTS)[number];
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const DEFAULT_FROM = "Boko Influencer Program <onboarding@resend.dev>";
+// Update VERIFIED_SENDER_ADDRESS once a real domain is verified in Resend.
+const VERIFIED_SENDER_ADDRESS = "onboarding@resend.dev";
+const DEFAULT_FROM = `Influencer Program <${VERIFIED_SENDER_ADDRESS}>`;
 
 export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: string }> = {
   "Influencer Registered": {
@@ -123,13 +125,10 @@ async function pushToKlaviyo(
 async function getShopSenderFrom(shop: string): Promise<string> {
   const settings = await prisma.shopSettings.findUnique({
     where: { shop },
-    select: { senderName: true, senderEmail: true },
+    select: { senderName: true },
   });
   const name = settings?.senderName?.trim();
-  const email = settings?.senderEmail?.trim();
-  if (name && email) return `${name} <${email}>`;
-  if (email) return email;
-  return DEFAULT_FROM;
+  return `${name || "Influencer Program"} <${VERIFIED_SENDER_ADDRESS}>`;
 }
 
 async function sendViaResend(to: string, subject: string, text: string, from: string = DEFAULT_FROM) {
