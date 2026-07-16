@@ -233,7 +233,13 @@ async function sendBuiltInEmail(
   const from = settings ? shopSenderFrom(settings.senderName) : DEFAULT_FROM;
   const template = custom ?? DEFAULT_TEMPLATES[event];
   const subject = renderTemplate(template.subject, properties);
-  const body = renderTemplate(template.body, properties);
+  const renderedBody = renderTemplate(template.body, properties);
+  // DEFAULT_TEMPLATES use plain text with \n line breaks. Convert to HTML before
+  // passing to applyBranding. Custom templates saved via the Tiptap editor are
+  // already HTML and pass through unchanged.
+  const body = renderedBody.trimStart().startsWith("<")
+    ? renderedBody
+    : renderedBody.split(/\n\n+/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
   const html = applyBranding(body, {
     logoUrl: settings?.logoUrl,
     headingColor: settings?.headingColor,
