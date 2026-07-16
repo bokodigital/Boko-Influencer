@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Page,
   Layout,
@@ -15,11 +15,136 @@ import {
   Checkbox,
   Banner,
 } from "@shopify/polaris";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { encryptValue, maskAccountNumber } from "../lib/crypto.server";
 import { KLAVIYO_EVENTS, DEFAULT_TEMPLATES } from "../lib/klaviyo.server";
 import BokoBanner from "../components/admin/BokoBanner";
+
+/** Upgrade legacy plain-text bodies to HTML so the editor can consume them. */
+function plainTextToHtml(text: string): string {
+  if (!text) return "<p></p>";
+  if (text.trimStart().startsWith("<")) return text;
+  return text
+    .split(/\n\n+/)
+    .map((para) => `<p>${para.replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
+// ─── Tiptap toolbar button ────────────────────────────────────────────────────
+
+const toolbarBtn: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "3px 8px",
+  border: "1px solid #c9cccf",
+  borderRadius: 4,
+  background: "#fff",
+  cursor: "pointer",
+  fontSize: 13,
+  fontWeight: 600,
+  lineHeight: 1,
+  color: "#202223",
+  minWidth: 28,
+};
+
+const toolbarBtnActive: React.CSSProperties = {
+  ...toolbarBtn,
+  background: "#f1f2f3",
+  borderColor: "#8c9196",
+};
+
+interface RichTextEditorProps {
+  initialContent: string;
+  onChange: (html: string) => void;
+}
+
+function RichTextEditor({ initialContent, onChange }: RichTextEditorProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Link.configure({ openOnClick: false, autolink: false }),
+    ],
+    content: plainTextToHtml(initialContent),
+    immediatelyRender: false,
+    onUpdate({ editor }) {
+      onChange(editor.getHTML());
+    },
+  });
+
+  const handleLink = useCallback(() => {
+    if (!editor) return;
+    if (editor.isActive("link")) {
+      editor.chain().focus().unsetLink().run();
+    } else {
+      const url = window.prompt("Enter URL");
+      if (url) editor.chain().focus().setLink({ href: url }).run();
+    }
+  }, [editor]);
+
+  return (
+    <div>
+      {/* toolbar */}
+      <div
+        style={{
+          display: "flex",
+          gap: 4,
+          padding: "6px 8px",
+          borderRadius: "4px 4px 0 0",
+          border: "1px solid #c9cccf",
+          borderBottom: "none",
+          background: "#f6f6f7",
+        }}
+      >
+        <button
+          type="button"
+          style={editor?.isActive("bold") ? toolbarBtnActive : toolbarBtn}
+          onMouseDown={(e) => { e.preventDefault(); editor?.chain().focus().toggleBold().run(); }}
+          title="Bold"
+        >
+          B
+        </button>
+        <button
+          type="button"
+          style={editor?.isActive("italic") ? toolbarBtnActive : toolbarBtn}
+          onMouseDown={(e) => { e.preventDefault(); editor?.chain().focus().toggleItalic().run(); }}
+          title="Italic"
+        >
+          <em>I</em>
+        </button>
+        <button
+          type="button"
+          style={editor?.isActive("link") ? toolbarBtnActive : toolbarBtn}
+          onMouseDown={(e) => { e.preventDefault(); handleLink(); }}
+          title="Link"
+        >
+          🔗
+        </button>
+      </div>
+
+      {/* editor area */}
+      <div
+        style={{
+          border: "1px solid #c9cccf",
+          borderRadius: "0 0 4px 4px",
+          minHeight: 120,
+          padding: "8px 12px",
+          background: "#fff",
+          fontSize: 14,
+          lineHeight: 1.6,
+          cursor: "text",
+        }}
+        onClick={() => editor?.commands.focus()}
+      >
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  );
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
@@ -103,7 +228,7 @@ export async function action({ request }: ActionFunctionArgs) {
 function TemplateCard({ item }: { item: ReturnType<typeof useLoaderData<typeof loader>>["events"][number] }) {
   const fetcher = useFetcher<{ ok?: boolean }>();
   const [subject, setSubject] = useState(item.subject);
-  const [body, setBody] = useState(item.body);
+  const [body, setBody] = useState(() => plainTextToHtml(item.body));
   const [enabled, setEnabled] = useState(item.enabled);
 
   return (
@@ -115,8 +240,11 @@ function TemplateCard({ item }: { item: ReturnType<typeof useLoaderData<typeof l
         </InlineStack>
         <FormLayout>
           <TextField label="Subject" autoComplete="off" value={subject} onChange={setSubject} />
-          <TextField label="Body" autoComplete="off" multiline={4} value={body} onChange={setBody} />
         </FormLayout>
+        <BlockStack gap="100">
+          <Text as="p" variant="bodySm" tone="subdued" fontWeight="medium">Body</Text>
+          <RichTextEditor initialContent={item.body} onChange={setBody} />
+        </BlockStack>
         <Text as="p" tone="subdued" variant="bodySm">
           Merge tags: {"{{first_name}} {{amount}} {{code}} {{referral_code}} {{order_id}} {{link}} {{method}} {{reward_title}} {{reward_type}} {{portal_login_url}}"}
         </Text>
