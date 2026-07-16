@@ -26,11 +26,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-const STATUS_COLOR: Record<string, string> = {
-  pending: "#B45309",
-  processing: "#1D4ED8",
-  completed: "#15803D",
-  failed: "#B91C1C",
+const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
+  pending: { bg: "#F8F9FC", color: "#000000" },
+  processing: { bg: "#000000", color: "#BFFC00" },
+  completed: { bg: "#BFFC00", color: "#000000" },
+  failed: { bg: "#000000", color: "#FFFFFF" },
 };
 
 export default function PortalPayouts() {
@@ -43,26 +43,26 @@ export default function PortalPayouts() {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: "#F8F9FC", textAlign: "left" }}>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Amount</th>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Method</th>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Status</th>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Processed</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Amount</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Method</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Status</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Processed</th>
             </tr>
           </thead>
           <tbody>
             {payouts.map((p) => (
-              <tr key={p.id} style={{ borderTop: "1px solid #eee" }}>
+              <tr key={p.id} style={{ borderTop: "1px solid #000000" }}>
                 <td style={{ padding: "12px 16px", fontWeight: 600 }}>{p.currency} {p.amount}</td>
                 <td style={{ padding: "12px 16px", textTransform: "capitalize" }}>{p.method.replace("_", " ")}</td>
                 <td style={{ padding: "12px 16px" }}>
-                  <span style={{ color: STATUS_COLOR[p.status] ?? "#333", fontWeight: 600, textTransform: "capitalize" }}>{p.status}</span>
+                  <span style={{ background: STATUS_STYLE[p.status]?.bg ?? "#F8F9FC", color: STATUS_STYLE[p.status]?.color ?? "#000000", fontWeight: 600, textTransform: "capitalize", padding: "4px 10px", borderRadius: "999px", fontSize: "12px", display: "inline-block" }}>{p.status}</span>
                 </td>
                 <td style={{ padding: "12px 16px" }}>{p.processedAt ? new Date(p.processedAt).toLocaleDateString() : "—"}</td>
               </tr>
             ))}
             {payouts.length === 0 && (
               <tr>
-                <td colSpan={4} style={{ padding: "1.5rem 16px", color: "#777" }}>No payouts yet.</td>
+                <td colSpan={4} style={{ padding: "1.5rem 16px", color: "#000000" }}>No payouts yet.</td>
               </tr>
             )}
           </tbody>

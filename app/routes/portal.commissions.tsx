@@ -28,11 +28,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-const STATUS_COLOR: Record<string, string> = {
-  pending: "#B45309",
-  approved: "#1D4ED8",
-  paid: "#15803D",
-  reversed: "#B91C1C",
+const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
+  pending: { bg: "#F8F9FC", color: "#000000" },
+  approved: { bg: "#000000", color: "#BFFC00" },
+  paid: { bg: "#BFFC00", color: "#000000" },
+  reversed: { bg: "#000000", color: "#FFFFFF" },
 };
 
 export default function PortalCommissions() {
@@ -45,26 +45,26 @@ export default function PortalCommissions() {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: "#F8F9FC", textAlign: "left" }}>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Order total</th>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Commission</th>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Status</th>
-              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#777" }}>Paid</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Order total</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Commission</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Status</th>
+              <th style={{ padding: "10px 16px", fontSize: "12px", color: "#000000" }}>Paid</th>
             </tr>
           </thead>
           <tbody>
             {commissions.map((c) => (
-              <tr key={c.id} style={{ borderTop: "1px solid #eee" }}>
+              <tr key={c.id} style={{ borderTop: "1px solid #000000" }}>
                 <td style={{ padding: "12px 16px" }}>{c.orderTotal ? `$${c.orderTotal} AUD` : "—"}</td>
                 <td style={{ padding: "12px 16px", fontWeight: 600 }}>${c.amount} AUD</td>
                 <td style={{ padding: "12px 16px" }}>
-                  <span style={{ color: STATUS_COLOR[c.status] ?? "#333", fontWeight: 600, textTransform: "capitalize" }}>{c.status}</span>
+                  <span style={{ background: STATUS_STYLE[c.status]?.bg ?? "#F8F9FC", color: STATUS_STYLE[c.status]?.color ?? "#000000", fontWeight: 600, textTransform: "capitalize", padding: "4px 10px", borderRadius: "999px", fontSize: "12px", display: "inline-block" }}>{c.status}</span>
                 </td>
                 <td style={{ padding: "12px 16px" }}>{c.paidAt ? new Date(c.paidAt).toLocaleDateString() : "—"}</td>
               </tr>
             ))}
             {commissions.length === 0 && (
               <tr>
-                <td colSpan={4} style={{ padding: "1.5rem 16px", color: "#777" }}>No commissions yet — share your referral link to start earning.</td>
+                <td colSpan={4} style={{ padding: "1.5rem 16px", color: "#000000" }}>No commissions yet — share your referral link to start earning.</td>
               </tr>
             )}
           </tbody>

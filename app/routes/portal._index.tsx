@@ -38,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ background: "#fff", borderRadius: "10px", padding: "1.25rem", flex: 1, minWidth: "160px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-      <div style={{ fontSize: "12px", color: "#777", marginBottom: "6px" }}>{label}</div>
+      <div style={{ fontSize: "12px", color: "#000000", marginBottom: "6px" }}>{label}</div>
       <div style={{ fontSize: "22px", fontWeight: 700 }}>{value}</div>
     </div>
   );
@@ -50,7 +50,7 @@ export default function PortalOverview() {
   return (
     <PortalShell influencerName={data.influencerName}>
       <h1 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "0.25rem" }}>Welcome back, {data.influencerName.split(" ")[0]}</h1>
-      <p style={{ color: "#666", marginBottom: "1.5rem" }}>Here's how your referrals are performing.</p>
+      <p style={{ color: "#000000", marginBottom: "1.5rem" }}>Here's how your referrals are performing.</p>
 
       <div style={{ background: "#000", color: "#fff", borderRadius: "10px", padding: "1.25rem", marginBottom: "1.5rem" }}>
         <div style={{ fontSize: "12px", color: "#BFFC00", marginBottom: "4px" }}>Your referral code</div>

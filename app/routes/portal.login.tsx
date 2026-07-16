@@ -35,12 +35,14 @@ export default function PortalLogin() {
     <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
       <div style={{ background: "#FFFFFF", padding: "2.5rem", borderRadius: "12px", width: "100%", maxWidth: "420px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
-          <div style={{ width: "40px", height: "40px", background: "#000000", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: "18px", height: "18px", background: "#BFFC00", borderRadius: "4px" }} />
+          <div style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="40" height="40" viewBox="2176 -2073.2 4652.3 4447.2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3916.2,1378.9c-20.7,0-41.4-1-61.6-2.9L6548-1312.1l-580.3-579.1L3274.4,796.9c-2-20.3-2.9-40.8-2.9-61.5v-2632.7h-820.7V735.5c0,807.8,655.9,1462.6,1465.2,1462.6h2637.6V1379H3916.2V1378.9z" fill="#000000" />
+            </svg>
           </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: "18px" }}>Boko Influencer Portal</div>
-            <div style={{ fontSize: "13px", color: "#666" }}>Sign in to view your dashboard</div>
+            <div style={{ fontSize: "13px", color: "#000000" }}>Sign in to view your dashboard</div>
           </div>
         </div>
 
@@ -52,7 +54,7 @@ export default function PortalLogin() {
               name="email"
               required
               placeholder="you@example.com"
-              style={{ width: "100%", padding: "10px 12px", border: "1px solid #ddd", borderRadius: "8px", marginBottom: "1rem", boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #000000", borderRadius: "8px", marginBottom: "1rem", boxSizing: "border-box" }}
             />
             <button
               type="submit"
@@ -66,7 +68,7 @@ export default function PortalLogin() {
 
         {fetcher.data?.sent && (
           <div>
-            <p style={{ fontSize: "14px", color: "#333" }}>{fetcher.data.message}</p>
+            <p style={{ fontSize: "14px", color: "#000000" }}>{fetcher.data.message}</p>
             {fetcher.data.link && (
               <a href={fetcher.data.link} style={{ display: "inline-block", marginTop: "1rem", padding: "12px 16px", background: "#000", color: "#BFFC00", borderRadius: "8px", textDecoration: "none", fontWeight: 700 }}>
                 Continue to dashboard
