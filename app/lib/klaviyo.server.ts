@@ -122,13 +122,8 @@ async function pushToKlaviyo(
   }
 }
 
-async function getShopSenderFrom(shop: string): Promise<string> {
-  const settings = await prisma.shopSettings.findUnique({
-    where: { shop },
-    select: { senderName: true },
-  });
-  if (!settings) return DEFAULT_FROM; // no row at all — use the global default
-  const name = settings.senderName?.trim();
+function shopSenderFrom(senderName?: string | null): string {
+  const name = senderName?.trim();
   return `${name || "Influencer Program"} <${VERIFIED_SENDER_ADDRESS}>`;
 }
 
@@ -225,24 +220,24 @@ async function sendBuiltInEmail(
   email: string,
   properties: Record<string, unknown>,
 ) {
-  const [custom, from, branding] = await Promise.all([
+  const [custom, settings] = await Promise.all([
     prisma.emailTemplate.findUnique({ where: { shop_event: { shop, event } } }),
-    getShopSenderFrom(shop),
     prisma.shopSettings.findUnique({
       where: { shop },
-      select: { logoUrl: true, headingColor: true, buttonColor: true },
+      select: { senderName: true, logoUrl: true, headingColor: true, buttonColor: true },
     }),
   ]);
 
   if (custom && !custom.enabled) return; // merchant explicitly turned this email off
 
+  const from = settings ? shopSenderFrom(settings.senderName) : DEFAULT_FROM;
   const template = custom ?? DEFAULT_TEMPLATES[event];
   const subject = renderTemplate(template.subject, properties);
   const body = renderTemplate(template.body, properties);
   const html = applyBranding(body, {
-    logoUrl: branding?.logoUrl,
-    headingColor: branding?.headingColor,
-    buttonColor: branding?.buttonColor,
+    logoUrl: settings?.logoUrl,
+    headingColor: settings?.headingColor,
+    buttonColor: settings?.buttonColor,
   });
   await sendViaResend(email, subject, html, from);
 }
