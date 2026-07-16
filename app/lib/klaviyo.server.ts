@@ -199,6 +199,6 @@ export async function notify(
       where: { id: notification.id },
       data: { status: "failed" },
     });
-    throw err;
+    console.error(`[notify] failed to send notification for event "${event}", influencer ${influencerId}:`, err);
   }
 }
