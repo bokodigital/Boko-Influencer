@@ -298,14 +298,13 @@ export default function EmailSettings() {
 
   return (
     <Page>
+      <div style={{ marginBottom: "24px" }}>
+        <BokoBanner
+          title="Email settings"
+          subtitle="Connect your own Klaviyo account, or customise the built-in emails sent for each program event."
+        />
+      </div>
       <Layout>
-        <Layout.Section>
-          <BokoBanner
-            title="Email settings"
-            subtitle="Connect your own Klaviyo account, or customise the built-in emails sent for each program event."
-          />
-        </Layout.Section>
-
         <Layout.Section>
           <Card>
             <BlockStack gap="300">
