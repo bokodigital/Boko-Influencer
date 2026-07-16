@@ -166,15 +166,72 @@ async function sendViaResend(to: string, subject: string, html: string, from: st
   }
 }
 
+interface BrandingOptions {
+  logoUrl?: string | null;
+  headingColor?: string | null;
+  buttonColor?: string | null;
+}
+
+function applyBranding(body: string, { logoUrl, headingColor, buttonColor }: BrandingOptions): string {
+  const hColor = headingColor || "#000000";
+  const bColor = buttonColor || "#000000";
+
+  // Inject heading colour as inline style on h1/h2/h3 opening tags.
+  let styled = body.replace(
+    /<(h[123])([\s>])/gi,
+    (_, tag, next) => `<${tag} style="color:${hColor}"${next === ">" ? ">" : " " + next}`,
+  );
+
+  // Style every <a …> as a CTA button.
+  const btnStyle = [
+    `display:inline-block`,
+    `padding:10px 20px`,
+    `background-color:${bColor}`,
+    `color:#ffffff`,
+    `border-radius:4px`,
+    `text-decoration:none`,
+    `font-weight:600`,
+  ].join(";");
+  styled = styled.replace(/<a(\s)/gi, `<a style="${btnStyle}"$1`);
+
+  // Logo row (only when URL is set).
+  const logoRow = logoUrl
+    ? `<tr><td align="center" style="padding:32px 40px 0">` +
+      `<img src="${logoUrl}" alt="" style="max-height:60px;display:block"></td></tr>`
+    : "";
+
+  return [
+    `<!DOCTYPE html>`,
+    `<html>`,
+    `<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>`,
+    `<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">`,
+    `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5">`,
+    `<tr><td align="center" style="padding:40px 16px">`,
+    `<table cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;max-width:600px;width:100%">`,
+    logoRow,
+    `<tr><td style="padding:32px 40px;font-size:15px;line-height:1.6;color:#202223">${styled}</td></tr>`,
+    `<tr><td align="center" style="padding:24px 40px;font-size:12px;color:#8c9196;border-top:1px solid #e1e3e5">`,
+    `You're receiving this email because you're a member of our influencer program.`,
+    `</td></tr>`,
+    `</table>`,
+    `</td></tr></table>`,
+    `</body></html>`,
+  ].join("\n");
+}
+
 async function sendBuiltInEmail(
   shop: string,
   event: KlaviyoEvent,
   email: string,
   properties: Record<string, unknown>,
 ) {
-  const [custom, from] = await Promise.all([
+  const [custom, from, branding] = await Promise.all([
     prisma.emailTemplate.findUnique({ where: { shop_event: { shop, event } } }),
     getShopSenderFrom(shop),
+    prisma.shopSettings.findUnique({
+      where: { shop },
+      select: { logoUrl: true, headingColor: true, buttonColor: true },
+    }),
   ]);
 
   if (custom && !custom.enabled) return; // merchant explicitly turned this email off
@@ -182,7 +239,12 @@ async function sendBuiltInEmail(
   const template = custom ?? DEFAULT_TEMPLATES[event];
   const subject = renderTemplate(template.subject, properties);
   const body = renderTemplate(template.body, properties);
-  await sendViaResend(email, subject, body, from);
+  const html = applyBranding(body, {
+    logoUrl: branding?.logoUrl,
+    headingColor: branding?.headingColor,
+    buttonColor: branding?.buttonColor,
+  });
+  await sendViaResend(email, subject, html, from);
 }
 
 export async function notify(
