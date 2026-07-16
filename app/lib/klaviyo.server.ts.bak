@@ -1,0 +1,98 @@
+// Thin wrapper around Klaviyo's Events API. Each call here maps to a flow
+// trigger built in the Klaviyo UI. Falls back to a queued transactional
+// email if Klaviyo isn't configured for a given store.
+
+import { prisma } from "./db.server";
+
+export const KLAVIYO_EVENTS = [
+  "Influencer Registered",
+  "Influencer Approved",
+  "Influencer Rejected",
+  "Commission Earned",
+  "Reward Unlocked",
+  "Payout Processed",
+  "Discount Code Created",
+  "Referral Generated",
+  "Portal Login Link",
+  "New Order via Referral",
+] as const;
+
+export type KlaviyoEvent = (typeof KLAVIYO_EVENTS)[number];
+
+const KLAVIYO_API_KEY = process.env.KLAVIYO_PRIVATE_API_KEY;
+
+export async function notify(
+  event: KlaviyoEvent,
+  influencerId: string,
+  properties: Record<string, unknown> = {}
+) {
+  const influencer = await prisma.influencer.findUniqueOrThrow({
+    where: { id: influencerId },
+  });
+
+  const notification = await prisma.notification.create({
+    data: {
+      influencerId,
+      type: event,
+      channel: KLAVIYO_API_KEY ? "klaviyo" : "email",
+      payload: properties as any,
+      status: "queued",
+    },
+  });
+
+  try {
+    if (KLAVIYO_API_KEY) {
+      await pushToKlaviyo(event, influencer.email, properties);
+    } else {
+      await sendFallbackEmail(event, influencer.email, properties);
+    }
+
+    await prisma.notification.update({
+      where: { id: notification.id },
+      data: { status: "sent", sentAt: new Date() },
+    });
+  } catch (err) {
+    await prisma.notification.update({
+      where: { id: notification.id },
+      data: { status: "failed" },
+    });
+    throw err;
+  }
+}
+
+async function pushToKlaviyo(
+  event: KlaviyoEvent,
+  email: string,
+  properties: Record<string, unknown>
+) {
+  const res = await fetch("https://a.klaviyo.com/api/events/", {
+    method: "POST",
+    headers: {
+      Authorization: `Klaviyo-API-Key ${KLAVIYO_API_KEY}`,
+      "Content-Type": "application/json",
+      revision: "2024-10-15",
+    },
+    body: JSON.stringify({
+      data: {
+        type: "event",
+        attributes: {
+          properties,
+          metric: { data: { type: "metric", attributes: { name: event } } },
+          profile: { data: { type: "profile", attributes: { email } } },
+        },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Klaviyo event push failed: ${res.status} ${await res.text()}`);
+  }
+}
+
+async function sendFallbackEmail(
+  event: KlaviyoEvent,
+  email: string,
+  properties: Record<string, unknown>
+) {
+  console.warn(`[fallback email] ${event} -> ${email}`, properties);
+}

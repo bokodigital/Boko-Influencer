@@ -1,0 +1,285 @@
+// Prisma schema for the Shopify Influencer Marketing App
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InfluencerStatus {
+  pending
+  approved
+  rejected
+  disabled
+}
+
+enum CommissionType {
+  percentage
+  fixed
+}
+
+enum CommissionBasis {
+  subtotal
+  total_after_discount
+}
+
+enum CommissionStatus {
+  pending
+  approved
+  paid
+  reversed
+}
+
+enum RewardType {
+  bonus
+  discount_code
+  store_credit
+  tier_upgrade
+}
+
+enum RewardStatus {
+  locked
+  unlocked
+  redeemed
+}
+
+enum PayoutMethod {
+  bank_transfer
+  paypal
+  other
+}
+
+enum PayoutStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+enum NotificationChannel {
+  klaviyo
+  email
+}
+
+model Influencer {
+  id            String            @id @default(cuid())
+  authUserId    String            @unique
+  firstName     String
+  lastName      String
+  email         String            @unique
+  phone         String?
+  status        InfluencerStatus  @default(pending)
+  profilePhotoUrl String?
+  bio           String?
+  referralCode  String            @unique
+  createdAt     DateTime          @default(now())
+
+  referralLinks   ReferralLink[]
+  clicks          Click[]
+  referrals       Referral[]
+  orders          Order[]
+  commissionRules CommissionRule[]
+  commissions     Commission[]
+  rewards         Reward[]
+  discountCodes   DiscountCode[]
+  bankDetails     BankDetail[]
+  payouts         Payout[]
+  notifications   Notification[]
+}
+
+model ReferralLink {
+  id              String   @id @default(cuid())
+  influencerId    String
+  influencer      Influencer @relation(fields: [influencerId], references: [id])
+  slug            String   @unique
+  destinationUrl  String
+  utmParams       Json?
+  createdAt       DateTime @default(now())
+
+  clicks Click[]
+}
+
+model Click {
+  id             String   @id @default(cuid())
+  referralLinkId String?
+  referralLink   ReferralLink? @relation(fields: [referralLinkId], references: [id])
+  influencerId   String
+  influencer     Influencer @relation(fields: [influencerId], references: [id])
+  ipHash         String
+  userAgent      String?
+  referrer       String?
+  deviceType     String?
+  country        String?
+  clickedAt      DateTime @default(now())
+}
+
+model Referral {
+  id                 String   @id @default(cuid())
+  influencerId       String
+  influencer         Influencer @relation(fields: [influencerId], references: [id])
+  shopifyCustomerId  String?
+  sessionId          String?
+  attributionMethod  String
+  createdAt          DateTime @default(now())
+
+  order Order?
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  shopifyOrderId   String   @unique
+  influencerId     String
+  influencer       Influencer @relation(fields: [influencerId], references: [id])
+  referralId       String?  @unique
+  referral         Referral? @relation(fields: [referralId], references: [id])
+  orderTotal       Decimal
+  discountCodeUsed String?
+  currency         String   @default("AUD")
+  orderStatus      String
+  createdAt        DateTime @default(now())
+
+  commission Commission?
+}
+
+model CommissionRule {
+  id            String          @id @default(cuid())
+  influencerId  String?
+  influencer    Influencer?     @relation(fields: [influencerId], references: [id])
+  type          CommissionType
+  value         Decimal
+  appliesTo     CommissionBasis @default(total_after_discount)
+  minOrderValue Decimal?
+  active        Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+
+  commissions Commission[]
+}
+
+model Commission {
+  id                String            @id @default(cuid())
+  orderId           String            @unique
+  order             Order             @relation(fields: [orderId], references: [id])
+  influencerId      String
+  influencer        Influencer        @relation(fields: [influencerId], references: [id])
+  commissionRuleId  String
+  commissionRule    CommissionRule    @relation(fields: [commissionRuleId], references: [id])
+  amount            Decimal
+  status            CommissionStatus  @default(pending)
+  approvedAt        DateTime?
+  paidAt            DateTime?
+  payoutId          String?
+  payout            Payout?           @relation(fields: [payoutId], references: [id])
+}
+
+model Reward {
+  id              String       @id @default(cuid())
+  influencerId    String
+  influencer      Influencer   @relation(fields: [influencerId], references: [id])
+  type            RewardType
+  title           String
+  description     String?
+  value           Decimal?
+  status          RewardStatus @default(locked)
+  unlockCondition String
+  createdAt       DateTime     @default(now())
+}
+
+model DiscountCode {
+  id                 String   @id @default(cuid())
+  influencerId       String
+  influencer         Influencer @relation(fields: [influencerId], references: [id])
+  code               String   @unique
+  type               CommissionType
+  value              Decimal
+  shopifyPriceRuleId String?
+  shopifyDiscountId  String?
+  usageLimit         Int?
+  expiresAt          DateTime?
+  active             Boolean  @default(true)
+  timesUsed          Int      @default(0)
+  revenueGenerated   Decimal  @default(0)
+}
+
+model BankDetail {
+  id                    String       @id @default(cuid())
+  influencerId          String
+  influencer            Influencer   @relation(fields: [influencerId], references: [id])
+  method                PayoutMethod
+  accountName           String?
+  accountNumberEncrypted String?
+  bsbEncrypted          String?
+  paypalEmail           String?
+  isDefault             Boolean      @default(true)
+  verified              Boolean      @default(false)
+}
+
+model Payout {
+  id            String       @id @default(cuid())
+  influencerId  String
+  influencer    Influencer   @relation(fields: [influencerId], references: [id])
+  amount        Decimal
+  currency      String       @default("AUD")
+  status        PayoutStatus @default(pending)
+  method        PayoutMethod
+  processedAt   DateTime?
+  processedBy   String?
+  referenceNote String?
+
+  commissions Commission[]
+}
+
+model Notification {
+  id           String              @id @default(cuid())
+  influencerId String?
+  influencer   Influencer?         @relation(fields: [influencerId], references: [id])
+  type         String
+  channel      NotificationChannel
+  payload      Json?
+  sentAt       DateTime?
+  status       String              @default("queued")
+  createdAt    DateTime            @default(now())
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+}
+
+model ShopSettings {
+  id                     String   @id @default(cuid())
+  shop                   String   @unique
+  klaviyoApiKeyEncrypted String?
+  senderName             String?
+  senderEmail            String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  shop      String
+  event     String
+  subject   String
+  body      String
+  enabled   Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@unique([shop, event], name: "shop_event")
+}

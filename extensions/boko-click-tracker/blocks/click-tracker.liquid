@@ -1,0 +1,15 @@
+{% comment %}
+  Boko Influencer - Referral Click Tracker
+  App embed block. Merchant enables this once (Theme editor > App embeds)
+  and it runs site-wide, capturing ?ref=CODE on any landing page and
+  recording the click + a 30-day attribution cookie via the app proxy.
+{% endcomment %}
+<script src="{{ 'click-tracker.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Boko Referral Tracker",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,6 @@
+modules = ["nodejs-20"]
+[agent]
+expertMode = true
+
+[nix]
+packages = ["iproute", "unixtools.netstat", "python310"]

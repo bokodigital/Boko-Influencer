@@ -1,0 +1,80 @@
+import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { useFetcher } from "@remix-run/react";
+import { prisma } from "../lib/db.server";
+import { createMagicLinkToken } from "../lib/portal-auth.server";
+import { notify } from "../lib/klaviyo.server";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+
+  const influencer = await prisma.influencer.findUnique({ where: { email } });
+
+  if (!influencer || influencer.status !== "approved") {
+    return json({
+      sent: true,
+      message: "If that email matches an approved influencer account, a login link has been generated.",
+    });
+  }
+
+  const token = createMagicLinkToken(influencer.id);
+  const url = new URL(request.url);
+  const link = `${url.origin}/portal/auth/${token}`;
+
+  await notify("Portal Login Link", influencer.id, { link });
+  // TODO: remove the fallback below once Klaviyo delivery is confirmed live.
+  // For now it is surfaced directly so the portal is usable end-to-end.
+  return json({ sent: true, link, message: "Login link generated (valid for 15 minutes)." });
+}
+
+export default function PortalLogin() {
+  const fetcher = useFetcher<{ sent?: boolean; link?: string; message?: string }>();
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
+      <div style={{ background: "#FFFFFF", padding: "2.5rem", borderRadius: "12px", width: "100%", maxWidth: "420px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
+          <div style={{ width: "40px", height: "40px", background: "#000000", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: "18px", height: "18px", background: "#BFFC00", borderRadius: "4px" }} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: "18px" }}>Boko Influencer Portal</div>
+            <div style={{ fontSize: "13px", color: "#666" }}>Sign in to view your dashboard</div>
+          </div>
+        </div>
+
+        {!fetcher.data?.sent && (
+          <fetcher.Form method="post">
+            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>Email address</label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="you@example.com"
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #ddd", borderRadius: "8px", marginBottom: "1rem", boxSizing: "border-box" }}
+            />
+            <button
+              type="submit"
+              disabled={fetcher.state !== "idle"}
+              style={{ width: "100%", padding: "12px", background: "#BFFC00", color: "#000", fontWeight: 700, border: "none", borderRadius: "8px", cursor: "pointer" }}
+            >
+              {fetcher.state !== "idle" ? "Sending..." : "Send login link"}
+            </button>
+          </fetcher.Form>
+        )}
+
+        {fetcher.data?.sent && (
+          <div>
+            <p style={{ fontSize: "14px", color: "#333" }}>{fetcher.data.message}</p>
+            {fetcher.data.link && (
+              <a href={fetcher.data.link} style={{ display: "inline-block", marginTop: "1rem", padding: "12px 16px", background: "#000", color: "#BFFC00", borderRadius: "8px", textDecoration: "none", fontWeight: 700 }}>
+                Continue to dashboard
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,7 @@
+roles = ["backend", "frontend"]
+
+[commands]
+dev = "npm exec remix vite:dev"
+
+[hmr_server]
+http_paths = ["/ping"]
