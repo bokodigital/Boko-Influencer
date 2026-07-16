@@ -263,7 +263,13 @@ function TemplateCard({ item }: { item: ReturnType<typeof useLoaderData<typeof l
         <Text as="p" tone="subdued" variant="bodySm">
           Merge tags: {"{{first_name}} {{amount}} {{code}} {{referral_code}} {{order_id}} {{link}} {{method}} {{reward_title}} {{reward_type}} {{portal_login_url}}"}
         </Text>
-        <InlineStack align="end">
+        <InlineStack align="end" gap="200">
+          <Button
+            url={`/app/settings/emails/preview?event=${encodeURIComponent(item.event)}`}
+            external
+          >
+            Preview
+          </Button>
           <fetcher.Form method="post">
             <input type="hidden" name="intent" value="save_template" />
             <input type="hidden" name="event" value={item.event} />

@@ -70,11 +70,20 @@ export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: st
   },
 };
 
-function renderTemplate(text: string, context: Record<string, unknown>): string {
+export function renderTemplate(text: string, context: Record<string, unknown>): string {
   return text.replace(/\{\{\s*([\w]+)\s*\}\}/g, (_match, key: string) => {
     const value = context[key];
     return value === undefined || value === null ? "" : String(value);
   });
+}
+
+/** Converts plain-text bodies (DEFAULT_TEMPLATES) to HTML. HTML bodies pass through unchanged. */
+export function normalizeBodyHtml(rendered: string): string {
+  if (rendered.trimStart().startsWith("<")) return rendered;
+  return rendered
+    .split(/\n\n+/)
+    .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
+    .join("");
 }
 
 async function getCurrentShop(): Promise<string | null> {
@@ -161,7 +170,7 @@ async function sendViaResend(to: string, subject: string, html: string, from: st
   }
 }
 
-interface BrandingOptions {
+export interface BrandingOptions {
   logoUrl?: string | null;
   headingColor?: string | null;
   buttonColor?: string | null;
@@ -182,7 +191,7 @@ function hexToTextColor(hex: string): "#ffffff" | "#000000" {
 
 const BOKO_FONT = "Helvetica,Arial,sans-serif";
 
-function applyBranding(body: string, { logoUrl, headingColor, buttonColor, shopName }: BrandingOptions): string {
+export function applyBranding(body: string, { logoUrl, headingColor, buttonColor, shopName }: BrandingOptions): string {
   const hColor = headingColor || "#000000";
   const bColor = buttonColor || "#000000";
   const btnTextColor = hexToTextColor(bColor);
@@ -260,12 +269,7 @@ async function sendBuiltInEmail(
   const template = custom ?? DEFAULT_TEMPLATES[event];
   const subject = renderTemplate(template.subject, properties);
   const renderedBody = renderTemplate(template.body, properties);
-  // DEFAULT_TEMPLATES use plain text with \n line breaks. Convert to HTML before
-  // passing to applyBranding. Custom templates saved via the Tiptap editor are
-  // already HTML and pass through unchanged.
-  const body = renderedBody.trimStart().startsWith("<")
-    ? renderedBody
-    : renderedBody.split(/\n\n+/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
+  const body = normalizeBodyHtml(renderedBody);
   const html = applyBranding(body, {
     logoUrl: settings?.logoUrl,
     headingColor: settings?.headingColor,
