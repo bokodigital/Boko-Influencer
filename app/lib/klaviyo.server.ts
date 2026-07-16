@@ -165,6 +165,7 @@ interface BrandingOptions {
   logoUrl?: string | null;
   headingColor?: string | null;
   buttonColor?: string | null;
+  shopName?: string | null;
 }
 
 // Returns #ffffff or #000000 — whichever has better contrast against the given
@@ -181,7 +182,7 @@ function hexToTextColor(hex: string): "#ffffff" | "#000000" {
 
 const BOKO_FONT = "Helvetica,Arial,sans-serif";
 
-function applyBranding(body: string, { logoUrl, headingColor, buttonColor }: BrandingOptions): string {
+function applyBranding(body: string, { logoUrl, headingColor, buttonColor, shopName }: BrandingOptions): string {
   const hColor = headingColor || "#000000";
   const bColor = buttonColor || "#000000";
   const btnTextColor = hexToTextColor(bColor);
@@ -230,8 +231,8 @@ function applyBranding(body: string, { logoUrl, headingColor, buttonColor }: Bra
     `<table cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;max-width:600px;width:100%">`,
     logoRow,
     `<tr><td style="padding:25px 20px;font-size:14px;line-height:1.6em;color:#202223;font-family:${BOKO_FONT}">${styled}</td></tr>`,
-    `<tr><td align="center" style="padding:24px 20px;font-size:12px;color:#8c9196;border-top:1px solid #e1e3e5;font-family:${BOKO_FONT}">`,
-    `You're receiving this email because you're a member of our influencer program.`,
+    `<tr><td align="center" style="padding:16px 20px;font-size:12px;color:#ffffff;background-color:#000000;font-family:${BOKO_FONT}">`,
+    `You&#8217;re receiving this because you&#8217;re part of the ${shopName ? shopName + " " : ""}Influencer Program.`,
     `</td></tr>`,
     `</table>`,
     `</td></tr></table>`,
@@ -269,6 +270,7 @@ async function sendBuiltInEmail(
     logoUrl: settings?.logoUrl,
     headingColor: settings?.headingColor,
     buttonColor: settings?.buttonColor,
+    shopName: settings?.senderName,
   });
   await sendViaResend(email, subject, html, from);
 }
