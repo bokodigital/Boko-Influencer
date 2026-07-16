@@ -1,0 +1,14 @@
+/* ─── Boko brand overrides ──────────────────────────────────────────────────
+   Apply Poppins across the embedded admin. We override Polaris's font custom
+   property so all Polaris components (Text, Button, etc.) pick it up too.
+   Palette: Black #000000 | Electric Lime #BFFC00 | White Lilac #F8F9FC | White #FFFFFF
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --p-font-family-sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --p-font-family-mono: ui-monospace, 'SFMono-Regular', monospace;
+}
+
+body {
+  font-family: var(--p-font-family-sans);
+}

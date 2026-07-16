@@ -38,24 +38,26 @@ export default function AppIndex() {
     <Page title="Boko Influencer">
       <Layout>
         <Layout.Section>
-          <BokoBanner
-            title="Influencer marketing dashboard"
-            subtitle="Track referrals, approve influencers, and manage commission payouts."
-          />
-          <InlineGrid columns={4} gap="400">
-            {stats.map((s) => (
-              <Card key={s.label}>
-                <BlockStack gap="100">
-                  <Text as="p" variant="bodySm" tone="subdued">
-                    {s.label}
-                  </Text>
-                  <Text as="p" variant="headingLg">
-                    {s.value}
-                  </Text>
-                </BlockStack>
-              </Card>
-            ))}
-          </InlineGrid>
+          <BlockStack gap="600">
+            <BokoBanner
+              title="Influencer marketing dashboard"
+              subtitle="Track referrals, approve influencers, and manage commission payouts."
+            />
+            <InlineGrid columns={4} gap="400">
+              {stats.map((s) => (
+                <Card key={s.label}>
+                  <BlockStack gap="100">
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      {s.label}
+                    </Text>
+                    <Text as="p" variant="headingLg">
+                      {s.value}
+                    </Text>
+                  </BlockStack>
+                </Card>
+              ))}
+            </InlineGrid>
+          </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>

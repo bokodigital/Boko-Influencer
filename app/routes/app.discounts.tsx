@@ -69,11 +69,12 @@ export default function AppDiscounts() {
     <Page>
       <Layout>
         <Layout.Section>
-          <BokoBanner title="Discount Codes" subtitle="Create and manage influencer discount codes synced to Shopify." />
+          <BlockStack gap="600">
+            <BokoBanner title="Discount Codes" subtitle="Create and manage influencer discount codes synced to Shopify." />
 
-          <Card>
-            <BlockStack gap="300">
-              <Text as="h2" variant="headingMd">Create discount code</Text>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">Create discount code</Text>
               <FormLayout>
                 <FormLayout.Group>
                   <Select
@@ -133,11 +134,11 @@ export default function AppDiscounts() {
                   Create discount code
                 </Button>
               </FormLayout>
-            </BlockStack>
-          </Card>
+              </BlockStack>
+            </Card>
 
-          <Card padding="0">
-            <IndexTable
+            <Card padding="0">
+              <IndexTable
               itemCount={discountCodes.length}
               headings={[
                 { title: "Influencer" },
@@ -165,11 +166,12 @@ export default function AppDiscounts() {
               ))}
             </IndexTable>
             {discountCodes.length === 0 && (
-              <div style={{ padding: "1rem" }}>
+              <div style={{ padding: "20px 24px" }}>
                 <Text as="p">No discount codes yet.</Text>
               </div>
             )}
-          </Card>
+            </Card>
+          </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>

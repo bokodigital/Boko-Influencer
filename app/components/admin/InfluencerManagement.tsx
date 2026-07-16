@@ -13,6 +13,7 @@ import {
   Text,
   EmptyState,
   InlineStack,
+  BlockStack,
 } from "@shopify/polaris";
 
 const BOKO_LIME = "#BFFC00";
@@ -108,33 +109,33 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
     >
       <Layout>
         <Layout.Section>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "16px 20px",
-              background: "#000000",
-              borderRadius: "8px",
-              marginBottom: "16px",
-            }}
-          >
-            <div style={{ background: BOKO_LIME, borderRadius: "6px", padding: "6px", display: "flex" }}>
-              {BOKO_ICON}
+          <BlockStack gap="600">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "16px 20px",
+                background: "#000000",
+                borderRadius: "8px",
+              }}
+            >
+              <div style={{ background: BOKO_LIME, borderRadius: "6px", padding: "6px", display: "flex" }}>
+                {BOKO_ICON}
+              </div>
+              <div>
+                <Text as="p" fontWeight="bold" tone="text-inverse">
+                  Boko Influencer Program
+                </Text>
+                <Text as="p" tone="text-inverse" variant="bodySm">
+                  {influencers.length} total influencer{influencers.length === 1 ? "" : "s"} &middot;{" "}
+                  {influencers.filter((i) => i.status === "approved").length} approved &middot;{" "}
+                  {influencers.filter((i) => i.status === "pending").length} pending review
+                </Text>
+              </div>
             </div>
-            <div>
-              <Text as="p" fontWeight="bold" tone="text-inverse">
-                Boko Influencer Program
-              </Text>
-              <Text as="p" tone="text-inverse" variant="bodySm">
-                {influencers.length} total influencer{influencers.length === 1 ? "" : "s"} &middot;{" "}
-                {influencers.filter((i) => i.status === "approved").length} approved &middot;{" "}
-                {influencers.filter((i) => i.status === "pending").length} pending review
-              </Text>
-            </div>
-          </div>
 
-          <Card padding="0">
+            <Card padding="0">
             {influencers.length === 0 ? (
               <div style={{ padding: "24px" }}>
                 <EmptyState
@@ -160,7 +161,8 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
                 {rows}
               </IndexTable>
             )}
-          </Card>
+            </Card>
+          </BlockStack>
         </Layout.Section>
       </Layout>
 

@@ -102,28 +102,29 @@ export default function AppRewards() {
     <Page>
       <Layout>
         <Layout.Section>
-          <BokoBanner title="Rewards" subtitle="Set up milestone rewards and unlock them automatically as influencers hit targets." />
+          <BlockStack gap="600">
+            <BokoBanner title="Rewards" subtitle="Set up milestone rewards and unlock them automatically as influencers hit targets." />
 
-          <Card>
-            <BlockStack gap="300">
-              <InlineStack align="space-between" blockAlign="center">
-                <Text as="h2" variant="headingMd">Reward engine</Text>
+            <Card>
+              <BlockStack gap="300">
+                <InlineStack align="space-between" blockAlign="center">
+                  <Text as="h2" variant="headingMd">Reward engine</Text>
                 <engineFetcher.Form method="post">
                   <input type="hidden" name="intent" value="run_engine" />
                   <Button submit loading={engineFetcher.state !== "idle"}>Check for unlocks</Button>
                 </engineFetcher.Form>
               </InlineStack>
-              {engineFetcher.data && (
-                <Text as="p">
-                  Checked {engineFetcher.data.checked} locked reward(s) — unlocked {engineFetcher.data.unlocked}.
-                </Text>
-              )}
-            </BlockStack>
-          </Card>
+                {engineFetcher.data && (
+                  <Text as="p">
+                    Checked {engineFetcher.data.checked} locked reward(s) — unlocked {engineFetcher.data.unlocked}.
+                  </Text>
+                )}
+              </BlockStack>
+            </Card>
 
-          <Card>
-            <BlockStack gap="300">
-              <Text as="h2" variant="headingMd">Create reward</Text>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">Create reward</Text>
               <createFetcher.Form method="post">
                 <input type="hidden" name="intent" value="create_reward" />
                 <input type="hidden" name="unlockCondition" value={`${metric}:${threshold}`} />
@@ -169,11 +170,11 @@ export default function AppRewards() {
                   <Button submit variant="primary" disabled={!influencerId || !title}>Create reward</Button>
                 </FormLayout>
               </createFetcher.Form>
-            </BlockStack>
-          </Card>
+              </BlockStack>
+            </Card>
 
-          <Card padding="0">
-            <IndexTable
+            <Card padding="0">
+              <IndexTable
               itemCount={rewards.length}
               headings={[
                 { title: "Influencer" },
@@ -214,11 +215,12 @@ export default function AppRewards() {
               ))}
             </IndexTable>
             {rewards.length === 0 && (
-              <div style={{ padding: "1rem" }}>
+              <div style={{ padding: "20px 24px" }}>
                 <Text as="p">No rewards yet.</Text>
               </div>
             )}
-          </Card>
+            </Card>
+          </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>

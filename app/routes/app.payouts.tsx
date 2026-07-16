@@ -144,10 +144,11 @@ export default function AppPayouts() {
     <Page>
       <Layout>
         <Layout.Section>
-          <BokoBanner title="Payouts" subtitle="Review and process influencer payouts." />
+          <BlockStack gap="600">
+            <BokoBanner title="Payouts" subtitle="Review and process influencer payouts." />
 
-          <Card>
-            <BlockStack gap="300">
+            <Card>
+              <BlockStack gap="300">
               <Text as="h2" variant="headingMd">Owed to influencers</Text>
               {owed.length === 0 && <Text as="p">Nothing owed right now — all approved commissions are paid out.</Text>}
               {owed.map((o) => (
@@ -162,10 +163,10 @@ export default function AppPayouts() {
                 </InlineStack>
               ))}
             </BlockStack>
-          </Card>
+            </Card>
 
-          <Card padding="0">
-            <IndexTable
+            <Card padding="0">
+              <IndexTable
               itemCount={payouts.length}
               headings={[
                 { title: "Influencer" },
@@ -213,11 +214,12 @@ export default function AppPayouts() {
               ))}
             </IndexTable>
             {payouts.length === 0 && (
-              <div style={{ padding: "1rem" }}>
+              <div style={{ padding: "20px 24px" }}>
                 <Text as="p">No payouts yet.</Text>
               </div>
             )}
-          </Card>
+            </Card>
+          </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>

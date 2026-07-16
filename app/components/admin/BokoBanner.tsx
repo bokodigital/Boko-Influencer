@@ -12,7 +12,6 @@ export default function BokoBanner({ title, subtitle }: { title: string; subtitl
         padding: "16px 20px",
         background: "#000000",
         borderRadius: "8px",
-        marginBottom: "16px",
       }}
     >
       <div style={{ background: BOKO_LIME, borderRadius: "6px", padding: "6px", display: "flex" }}>

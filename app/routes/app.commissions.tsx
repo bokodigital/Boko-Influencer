@@ -137,9 +137,8 @@ export default function AppCommissions() {
     <Page title="Commissions">
       <Layout>
         <Layout.Section>
-          <BokoBanner title="Commissions" subtitle="Track influencer earnings and approval status." />
-
-          <BlockStack gap="400">
+          <BlockStack gap="600">
+            <BokoBanner title="Commissions" subtitle="Track influencer earnings and approval status." />
             <Card>
               <BlockStack gap="300">
                 <InlineStack align="space-between">
@@ -259,7 +258,7 @@ export default function AppCommissions() {
                 {rows}
               </IndexTable>
               {commissions.length === 0 && (
-                <div style={{ padding: "1rem" }}>
+                <div style={{ padding: "20px 24px" }}>
                   <Text as="p">No commissions yet.</Text>
                 </div>
               )}
