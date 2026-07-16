@@ -127,7 +127,8 @@ async function getShopSenderFrom(shop: string): Promise<string> {
     where: { shop },
     select: { senderName: true },
   });
-  const name = settings?.senderName?.trim();
+  if (!settings) return DEFAULT_FROM; // no row at all — use the global default
+  const name = settings.senderName?.trim();
   return `${name || "Influencer Program"} <${VERIFIED_SENDER_ADDRESS}>`;
 }
 
