@@ -132,7 +132,23 @@ async function getShopSenderFrom(shop: string): Promise<string> {
   return `${name || "Influencer Program"} <${VERIFIED_SENDER_ADDRESS}>`;
 }
 
-async function sendViaResend(to: string, subject: string, text: string, from: string = DEFAULT_FROM) {
+function htmlToPlainText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+async function sendViaResend(to: string, subject: string, html: string, from: string = DEFAULT_FROM) {
+  const text = htmlToPlainText(html);
   if (!RESEND_API_KEY) {
     console.warn(`[email fallback - no RESEND_API_KEY set] to ${to}: ${subject}\n${text}`);
     return;
@@ -143,7 +159,7 @@ async function sendViaResend(to: string, subject: string, text: string, from: st
       Authorization: `Bearer ${RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to: [to], subject, text }),
+    body: JSON.stringify({ from, to: [to], subject, html, text }),
   });
   if (!res.ok) {
     throw new Error(`Resend send failed: ${res.status} ${await res.text()}`);
