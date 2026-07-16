@@ -23,7 +23,7 @@ export const KLAVIYO_EVENTS = [
 export type KlaviyoEvent = (typeof KLAVIYO_EVENTS)[number];
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const DEFAULT_FROM = "Boko Influencer Program <influencers@boko.com.au>";
+const DEFAULT_FROM = "Boko Influencer Program <onboarding@resend.dev>";
 
 export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: string }> = {
   "Influencer Registered": {
