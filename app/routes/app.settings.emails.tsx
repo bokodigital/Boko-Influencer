@@ -171,6 +171,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     maskedKey: settings?.klaviyoApiKeyEncrypted ? maskAccountNumber("klaviyo-connected-key") : null,
     senderName: settings?.senderName ?? "",
     logoUrl: settings?.logoUrl ?? "",
+    buttonColor: settings?.buttonColor ?? "#000000",
     events,
   });
 }
@@ -211,10 +212,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "save_branding") {
     const logoUrl = String(formData.get("logoUrl") || "").trim();
+    const buttonColor = String(formData.get("buttonColor") || "").trim();
     await prisma.shopSettings.upsert({
       where: { shop },
-      update: { logoUrl: logoUrl || null },
-      create: { shop, logoUrl: logoUrl || null },
+      update: { logoUrl: logoUrl || null, buttonColor: buttonColor || null },
+      create: { shop, logoUrl: logoUrl || null, buttonColor: buttonColor || null },
     });
     return json({ ok: true });
   }
@@ -283,6 +285,7 @@ export default function EmailSettings() {
   const [apiKey, setApiKey] = useState("");
   const [senderName, setSenderName] = useState(data.senderName);
   const [logoUrl, setLogoUrl] = useState(data.logoUrl);
+  const [buttonColor, setButtonColor] = useState(data.buttonColor);
 
   return (
     <Page>
@@ -385,6 +388,19 @@ export default function EmailSettings() {
                       />
                     </InlineStack>
                   )}
+                  <BlockStack gap="100">
+                    <Text as="p" variant="bodySm" tone="subdued" fontWeight="medium">Button colour</Text>
+                    <InlineStack gap="300" blockAlign="center">
+                      <input
+                        type="color"
+                        name="buttonColor"
+                        value={buttonColor}
+                        onChange={(e) => setButtonColor(e.target.value)}
+                        style={{ width: 40, height: 32, padding: 2, border: "1px solid #c9cccf", borderRadius: 4, cursor: "pointer", background: "none" }}
+                      />
+                      <Text as="p" variant="bodySm" tone="subdued">{buttonColor}</Text>
+                    </InlineStack>
+                  </BlockStack>
                   <InlineStack align="end">
                     <Button submit variant="primary" loading={brandingFetcher.state !== "idle"}>
                       Save
