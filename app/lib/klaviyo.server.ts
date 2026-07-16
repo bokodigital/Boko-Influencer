@@ -167,45 +167,70 @@ interface BrandingOptions {
   buttonColor?: string | null;
 }
 
+// Returns #ffffff or #000000 — whichever has better contrast against the given
+// hex background. Defaults to white; switches to black only for very light colours.
+function hexToTextColor(hex: string): "#ffffff" | "#000000" {
+  const h = hex.replace(/^#/, "");
+  if (h.length !== 6) return "#ffffff";
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  // Perceived luminance (0–255). Threshold 186 is a standard cut-off.
+  return 0.299 * r + 0.587 * g + 0.114 * b > 186 ? "#000000" : "#ffffff";
+}
+
+const BOKO_FONT = "Helvetica,Arial,sans-serif";
+
 function applyBranding(body: string, { logoUrl, headingColor, buttonColor }: BrandingOptions): string {
   const hColor = headingColor || "#000000";
   const bColor = buttonColor || "#000000";
+  const btnTextColor = hexToTextColor(bColor);
 
-  // Inject heading colour as inline style on h1/h2/h3 opening tags.
+  // h1/h2/h3 → 20 px, uppercase, bold, Helvetica, merchant heading colour.
+  const headingStyle = [
+    `color:${hColor}`,
+    `font-size:20px`,
+    `text-transform:uppercase`,
+    `font-weight:bold`,
+    `font-family:${BOKO_FONT}`,
+    `margin:0 0 12px`,
+  ].join(";");
   let styled = body.replace(
     /<(h[123])([\s>])/gi,
-    (_, tag, next) => `<${tag} style="color:${hColor}"${next === ">" ? ">" : " " + next}`,
+    (_, tag, next) => `<${tag} style="${headingStyle}"${next === ">" ? ">" : " " + next}`,
   );
 
-  // Style every <a …> as a CTA button.
+  // <a …> → CTA button: Helvetica Bold 14 px, 10/25 px padding, contrast-safe text.
   const btnStyle = [
     `display:inline-block`,
-    `padding:10px 20px`,
+    `padding:10px 25px`,
     `background-color:${bColor}`,
-    `color:#ffffff`,
+    `color:${btnTextColor}`,
     `border-radius:4px`,
     `text-decoration:none`,
-    `font-weight:600`,
+    `font-weight:bold`,
+    `font-size:14px`,
+    `font-family:${BOKO_FONT}`,
   ].join(";");
   styled = styled.replace(/<a(\s)/gi, `<a style="${btnStyle}"$1`);
 
-  // Logo row (only when URL is set).
+  // Logo row — centred, max-height 60 px.
   const logoRow = logoUrl
-    ? `<tr><td align="center" style="padding:32px 40px 0">` +
-      `<img src="${logoUrl}" alt="" style="max-height:60px;display:block"></td></tr>`
+    ? `<tr><td align="center" style="padding:25px 20px 0;font-family:${BOKO_FONT}">` +
+      `<img src="${logoUrl}" alt="" style="max-height:60px;display:block;margin:0 auto"></td></tr>`
     : "";
 
   return [
     `<!DOCTYPE html>`,
     `<html>`,
     `<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>`,
-    `<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">`,
+    `<body style="margin:0;padding:0;background:#f4f4f5;font-family:${BOKO_FONT}">`,
     `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5">`,
     `<tr><td align="center" style="padding:40px 16px">`,
     `<table cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;max-width:600px;width:100%">`,
     logoRow,
-    `<tr><td style="padding:32px 40px;font-size:15px;line-height:1.6;color:#202223">${styled}</td></tr>`,
-    `<tr><td align="center" style="padding:24px 40px;font-size:12px;color:#8c9196;border-top:1px solid #e1e3e5">`,
+    `<tr><td style="padding:25px 20px;font-size:14px;line-height:1.6em;color:#202223;font-family:${BOKO_FONT}">${styled}</td></tr>`,
+    `<tr><td align="center" style="padding:24px 20px;font-size:12px;color:#8c9196;border-top:1px solid #e1e3e5;font-family:${BOKO_FONT}">`,
     `You're receiving this email because you're a member of our influencer program.`,
     `</td></tr>`,
     `</table>`,
