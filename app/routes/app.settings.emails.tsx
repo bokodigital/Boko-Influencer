@@ -170,6 +170,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     hasKlaviyo: Boolean(settings?.klaviyoApiKeyEncrypted),
     maskedKey: settings?.klaviyoApiKeyEncrypted ? maskAccountNumber("klaviyo-connected-key") : null,
     senderName: settings?.senderName ?? "",
+    logoUrl: settings?.logoUrl ?? "",
     events,
   });
 }
@@ -204,6 +205,16 @@ export async function action({ request }: ActionFunctionArgs) {
       where: { shop },
       update: { senderName: senderName || null },
       create: { shop, senderName: senderName || null },
+    });
+    return json({ ok: true });
+  }
+
+  if (intent === "save_branding") {
+    const logoUrl = String(formData.get("logoUrl") || "").trim();
+    await prisma.shopSettings.upsert({
+      where: { shop },
+      update: { logoUrl: logoUrl || null },
+      create: { shop, logoUrl: logoUrl || null },
     });
     return json({ ok: true });
   }
@@ -267,9 +278,11 @@ export default function EmailSettings() {
   const data = useLoaderData<typeof loader>();
   const klaviyoFetcher = useFetcher<{ ok?: boolean }>();
   const senderFetcher = useFetcher<{ ok?: boolean }>();
+  const brandingFetcher = useFetcher<{ ok?: boolean }>();
   const [hasKlaviyo, setHasKlaviyo] = useState(data.hasKlaviyo);
   const [apiKey, setApiKey] = useState("");
   const [senderName, setSenderName] = useState(data.senderName);
+  const [logoUrl, setLogoUrl] = useState(data.logoUrl);
 
   return (
     <Page>
@@ -343,6 +356,42 @@ export default function EmailSettings() {
                   </Button>
                 </InlineStack>
               </senderFetcher.Form>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <Text as="h2" variant="headingMd">Branding</Text>
+              <brandingFetcher.Form method="post">
+                <input type="hidden" name="intent" value="save_branding" />
+                <BlockStack gap="300">
+                  <TextField
+                    label="Logo"
+                    autoComplete="off"
+                    name="logoUrl"
+                    value={logoUrl}
+                    onChange={setLogoUrl}
+                    placeholder="https://cdn.shopify.com/s/files/…/logo.png"
+                    helpText="Upload your logo to Shopify Admin > Content > Files, then paste the file URL here."
+                  />
+                  {logoUrl && (
+                    <InlineStack align="start">
+                      <img
+                        src={logoUrl}
+                        alt="Logo preview"
+                        style={{ maxHeight: 64, maxWidth: 240, objectFit: "contain", borderRadius: 4, border: "1px solid #e1e3e5" }}
+                      />
+                    </InlineStack>
+                  )}
+                  <InlineStack align="end">
+                    <Button submit variant="primary" loading={brandingFetcher.state !== "idle"}>
+                      Save
+                    </Button>
+                  </InlineStack>
+                </BlockStack>
+              </brandingFetcher.Form>
             </BlockStack>
           </Card>
         </Layout.Section>
