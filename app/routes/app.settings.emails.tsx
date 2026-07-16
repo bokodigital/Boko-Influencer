@@ -44,6 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     hasKlaviyo: Boolean(settings?.klaviyoApiKeyEncrypted),
     maskedKey: settings?.klaviyoApiKeyEncrypted ? maskAccountNumber("klaviyo-connected-key") : null,
+    senderName: settings?.senderName ?? "",
     events,
   });
 }
@@ -68,6 +69,16 @@ export async function action({ request }: ActionFunctionArgs) {
       where: { shop },
       update: { klaviyoApiKeyEncrypted: encryptValue(apiKey) },
       create: { shop, klaviyoApiKeyEncrypted: encryptValue(apiKey) },
+    });
+    return json({ ok: true });
+  }
+
+  if (intent === "save_sender") {
+    const senderName = String(formData.get("senderName") || "").trim();
+    await prisma.shopSettings.upsert({
+      where: { shop },
+      update: { senderName: senderName || null },
+      create: { shop, senderName: senderName || null },
     });
     return json({ ok: true });
   }
@@ -127,8 +138,10 @@ function TemplateCard({ item }: { item: ReturnType<typeof useLoaderData<typeof l
 export default function EmailSettings() {
   const data = useLoaderData<typeof loader>();
   const klaviyoFetcher = useFetcher<{ ok?: boolean }>();
+  const senderFetcher = useFetcher<{ ok?: boolean }>();
   const [hasKlaviyo, setHasKlaviyo] = useState(data.hasKlaviyo);
   const [apiKey, setApiKey] = useState("");
+  const [senderName, setSenderName] = useState(data.senderName);
 
   return (
     <Page>
@@ -173,6 +186,35 @@ export default function EmailSettings() {
                   built-in system using the templates below.
                 </Banner>
               )}
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">Sender display name</Text>
+              <Text as="p" tone="subdued" variant="bodySm">
+                The name that appears in the "From" field of emails sent to influencers. Leave blank to use "Influencer Program".
+              </Text>
+              <senderFetcher.Form method="post">
+                <input type="hidden" name="intent" value="save_sender" />
+                <FormLayout>
+                  <TextField
+                    label="Display name"
+                    autoComplete="off"
+                    name="senderName"
+                    value={senderName}
+                    onChange={setSenderName}
+                    placeholder="Influencer Program"
+                  />
+                </FormLayout>
+                <InlineStack align="end">
+                  <Button submit variant="primary" loading={senderFetcher.state !== "idle"}>
+                    Save
+                  </Button>
+                </InlineStack>
+              </senderFetcher.Form>
             </BlockStack>
           </Card>
         </Layout.Section>
