@@ -5,7 +5,7 @@ import { AppProvider } from "@shopify/shopify-app-remix/react";
 import { NavMenu } from "@shopify/app-bridge-react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import bokoStyles from "../styles/boko.css?url";
-import { authenticate } from "../shopify.server";
+import { authenticate, registerWebhooks } from "../shopify.server";
 
 export const links = () => [
   { rel: "stylesheet", href: polarisStyles },
@@ -13,7 +13,18 @@ export const links = () => [
 ];
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+  // Safety net: make sure Shopify has our order/uninstall webhook
+  // subscriptions registered for this shop. This runs on every admin
+  // page load, but registerWebhooks() is idempotent (it just confirms
+  // the subscriptions already match), so the extra call is cheap. This
+  // guarantees commissions start flowing even for shops that connected
+  // before webhook registration was wired into the auth flow.
+  try {
+    await registerWebhooks({ session });
+  } catch (error) {
+    console.error("Failed to register webhooks", error);
+  }
   return json({ apiKey: process.env.SHOPIFY_API_KEY || "" });
 }
 

@@ -17,15 +17,15 @@ api_version = "2024-10"
 
   [[webhooks.subscriptions]]
   topics = ["orders/create"]
-  uri = "/webhooks/orders.create"
+  uri = "/webhooks/orders/create"
 
   [[webhooks.subscriptions]]
   topics = ["orders/cancelled"]
-  uri = "/webhooks/orders.cancelled"
+  uri = "/webhooks/orders/cancelled"
 
   [[webhooks.subscriptions]]
   topics = ["app/uninstalled"]
-  uri = "/webhooks/app.uninstalled"
+  uri = "/webhooks/app/uninstalled"
 
 [app_proxy]
 url = "https://boko-influencer.replit.app/proxy"

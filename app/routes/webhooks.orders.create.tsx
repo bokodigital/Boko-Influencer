@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const influencer = discountCode
     ? await prisma.influencer.findFirst({
-        where: { discountCodes: { some: { code: discountCode, active: true } } },
+        where: { discountCodes: { some: { code: { equals: discountCode, mode: "insensitive" }, active: true } } },
       })
     : refCookieAttr
     ? await prisma.influencer.findFirst({
