@@ -14,6 +14,8 @@ import {
   TextField,
   Checkbox,
   Banner,
+  Modal,
+  Spinner,
 } from "@shopify/polaris";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -242,45 +244,77 @@ export async function action({ request }: ActionFunctionArgs) {
 
 function TemplateCard({ item }: { item: ReturnType<typeof useLoaderData<typeof loader>>["events"][number] }) {
   const fetcher = useFetcher<{ ok?: boolean }>();
+  const previewFetcher = useFetcher<{ html: string }>();
   const [subject, setSubject] = useState(item.subject);
   const [body, setBody] = useState(() => plainTextToHtml(item.body));
   const [enabled, setEnabled] = useState(item.enabled);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const handlePreview = () => {
+    previewFetcher.load(`/app/settings/emails/preview?event=${encodeURIComponent(item.event)}`);
+    setPreviewOpen(true);
+  };
 
   return (
-    <Card>
-      <BlockStack gap="300">
-        <InlineStack align="space-between">
-          <Text as="h3" variant="headingSm">{item.event}</Text>
-          <Checkbox label="Enabled" checked={enabled} onChange={setEnabled} />
-        </InlineStack>
-        <FormLayout>
-          <TextField label="Subject" autoComplete="off" value={subject} onChange={setSubject} />
-        </FormLayout>
-        <BlockStack gap="100">
-          <Text as="p" variant="bodySm" tone="subdued" fontWeight="medium">Body</Text>
-          <RichTextEditor initialContent={item.body} onChange={setBody} />
+    <>
+      <Card>
+        <BlockStack gap="300">
+          <InlineStack align="space-between">
+            <Text as="h3" variant="headingSm">{item.event}</Text>
+            <Checkbox label="Enabled" checked={enabled} onChange={setEnabled} />
+          </InlineStack>
+          <FormLayout>
+            <TextField label="Subject" autoComplete="off" value={subject} onChange={setSubject} />
+          </FormLayout>
+          <BlockStack gap="100">
+            <Text as="p" variant="bodySm" tone="subdued" fontWeight="medium">Body</Text>
+            <RichTextEditor initialContent={item.body} onChange={setBody} />
+          </BlockStack>
+          <Text as="p" tone="subdued" variant="bodySm">
+            Merge tags: {"{{first_name}} {{amount}} {{code}} {{referral_code}} {{order_id}} {{link}} {{method}} {{reward_title}} {{reward_type}} {{portal_login_url}}"}
+          </Text>
+          <InlineStack align="end" gap="200">
+            <Button onClick={handlePreview} loading={previewFetcher.state === "loading"}>
+              Preview
+            </Button>
+            <fetcher.Form method="post">
+              <input type="hidden" name="intent" value="save_template" />
+              <input type="hidden" name="event" value={item.event} />
+              <input type="hidden" name="subject" value={subject} />
+              <input type="hidden" name="body" value={body} />
+              <input type="hidden" name="enabled" value={String(enabled)} />
+              <Button submit variant="primary" loading={fetcher.state !== "idle"}>Save</Button>
+            </fetcher.Form>
+          </InlineStack>
         </BlockStack>
-        <Text as="p" tone="subdued" variant="bodySm">
-          Merge tags: {"{{first_name}} {{amount}} {{code}} {{referral_code}} {{order_id}} {{link}} {{method}} {{reward_title}} {{reward_type}} {{portal_login_url}}"}
-        </Text>
-        <InlineStack align="end" gap="200">
-          <Button
-            url={`/app/settings/emails/preview?event=${encodeURIComponent(item.event)}`}
-            external
-          >
-            Preview
-          </Button>
-          <fetcher.Form method="post">
-            <input type="hidden" name="intent" value="save_template" />
-            <input type="hidden" name="event" value={item.event} />
-            <input type="hidden" name="subject" value={subject} />
-            <input type="hidden" name="body" value={body} />
-            <input type="hidden" name="enabled" value={String(enabled)} />
-            <Button submit variant="primary" loading={fetcher.state !== "idle"}>Save</Button>
-          </fetcher.Form>
-        </InlineStack>
-      </BlockStack>
-    </Card>
+      </Card>
+
+      <Modal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={`Email preview — ${item.event}`}
+        size="large"
+      >
+        <Modal.Section flush>
+          {previewFetcher.state === "loading" || (!previewFetcher.data && previewOpen) ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "400px" }}>
+              <Spinner accessibilityLabel="Loading preview" />
+            </div>
+          ) : previewFetcher.data?.html ? (
+            <iframe
+              srcDoc={previewFetcher.data.html}
+              title={`Email preview for ${item.event}`}
+              style={{ width: "100%", height: "640px", border: "none", display: "block" }}
+              sandbox="allow-same-origin"
+            />
+          ) : (
+            <div style={{ padding: "20px 24px" }}>
+              <Text as="p" tone="subdued">Preview could not be loaded.</Text>
+            </div>
+          )}
+        </Modal.Section>
+      </Modal>
+    </>
   );
 }
 

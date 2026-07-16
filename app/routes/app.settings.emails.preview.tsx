@@ -1,3 +1,4 @@
+import { json } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
@@ -24,6 +25,11 @@ const SAMPLE_PROPS: Record<string, string> = {
   portal_login_url: "https://example.com/portal/login",
 };
 
+/**
+ * Returns JSON { html } so Remix Single Fetch (the .data URL) can populate
+ * useFetcher.data correctly. The HTML is rendered in an <iframe srcDoc> in the
+ * TemplateCard modal — no new tab needed, no OAuth redirect.
+ */
 export async function loader({ request }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
@@ -32,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const event = url.searchParams.get("event") as KlaviyoEvent | null;
 
   if (!event || !(KLAVIYO_EVENTS as readonly string[]).includes(event)) {
-    return new Response("Invalid or missing event parameter.", { status: 400 });
+    return json({ html: "<p>Invalid or missing event parameter.</p>" }, { status: 400 });
   }
 
   const [custom, settings] = await Promise.all([
@@ -53,7 +59,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     shopName: settings?.senderName,
   });
 
-  return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
-  });
+  return json({ html });
 }
