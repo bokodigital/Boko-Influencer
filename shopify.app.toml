@@ -1,6 +1,6 @@
 name = "boko-influencer"
 client_id = "b29da7584f3fca0a2dc40d1b48af06ba"
-application_url = "https://35daa581-0fa6-4815-8bb3-b5c70367c082-00-35fajdw2tvw2d.sisko.replit.dev"
+application_url = "https://boko-influencer.replit.app"
 embedded = true
 
 [access_scopes]
@@ -8,8 +8,8 @@ scopes = "read_orders,read_customers,read_discounts,write_discounts,read_product
 
 [auth]
 redirect_urls = [
-  "https://35daa581-0fa6-4815-8bb3-b5c70367c082-00-35fajdw2tvw2d.sisko.replit.dev/auth/callback",
-  "https://35daa581-0fa6-4815-8bb3-b5c70367c082-00-35fajdw2tvw2d.sisko.replit.dev/auth/shopify/callback"
+  "https://boko-influencer.replit.app/auth/callback",
+  "https://boko-influencer.replit.app/auth/shopify/callback"
 ]
 
 [webhooks]
@@ -28,9 +28,9 @@ api_version = "2024-10"
   uri = "/webhooks/app.uninstalled"
 
 [app_proxy]
-url = "https://35daa581-0fa6-4815-8bb3-b5c70367c082-00-35fajdw2tvw2d.sisko.replit.dev/proxy"
+url = "https://boko-influencer.replit.app/proxy"
 subpath = "boko-influencer"
 prefix = "apps"
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
