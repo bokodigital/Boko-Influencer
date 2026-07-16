@@ -214,9 +214,9 @@ function applyBranding(body: string, { logoUrl, headingColor, buttonColor }: Bra
   ].join(";");
   styled = styled.replace(/<a(\s)/gi, `<a style="${btnStyle}"$1`);
 
-  // Logo row — centred, max-height 60 px.
+  // Logo row — centred on a black background band, 15 px top/bottom padding.
   const logoRow = logoUrl
-    ? `<tr><td align="center" style="padding:25px 20px 0;font-family:${BOKO_FONT}">` +
+    ? `<tr><td align="center" style="padding:15px 20px;background-color:#000000;font-family:${BOKO_FONT}">` +
       `<img src="${logoUrl}" alt="" style="max-height:60px;display:block;margin:0 auto"></td></tr>`
     : "";
 
