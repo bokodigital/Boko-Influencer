@@ -7,6 +7,7 @@ import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { evaluateRewardUnlocks } from "../lib/rewards.server";
 import BokoBanner from "../components/admin/BokoBanner";
+import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await authenticate.admin(request);
@@ -104,6 +105,9 @@ export default function AppRewards() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Rewards" subtitle="Set up milestone rewards and unlock them automatically as influencers hit targets." />
+            <HowToUse title="How to use this page">
+              Set up milestone rewards to keep influencers motivated, for example a bonus after they reach a certain number of referred sales or total revenue. Rewards unlock automatically once an influencer hits the target you set, and they will be notified so you do not have to track this manually.
+            </HowToUse>
 
             <Card>
               <BlockStack gap="300">

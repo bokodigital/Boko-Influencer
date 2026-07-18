@@ -5,6 +5,7 @@ import { Page, Layout, Card, Text, BlockStack, InlineGrid } from "@shopify/polar
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import BokoBanner from "../components/admin/BokoBanner";
+import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await authenticate.admin(request);
@@ -43,6 +44,9 @@ export default function AppIndex() {
               title="Influencer marketing dashboard"
               subtitle="Track referrals, approve influencers, and manage commission payouts."
             />
+            <HowToUse title="How to use this dashboard">
+              This is your home overview. It shows how many influencers you have in total, how many are waiting for approval, how much commission is currently owed to influencers, and how much has already been paid out so far. Use the pages in the left-hand navigation to manage influencers, commissions, payouts, discount codes and rewards in more detail.
+            </HowToUse>
             <InlineGrid columns={4} gap="400">
               {stats.map((s) => (
                 <Card key={s.label}>

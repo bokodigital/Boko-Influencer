@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useFetcher } from "@remix-run/react";
+import HowToUse from "./HowToUse";
 import {
   Page,
   Layout,
@@ -134,6 +135,9 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
                 </Text>
               </div>
             </div>
+            <HowToUse title="How to use this page">
+              This is where you manage everyone in the influencer program. Click Add influencer to manually add someone, or approve, reject or disable applicants using the status controls in the table. Each influencer gets a unique referral code and discount code that customers use at checkout, which is how their sales, commissions and payouts get tracked automatically.
+            </HowToUse>
 
             <Card padding="0">
             {influencers.length === 0 ? (

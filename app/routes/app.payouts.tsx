@@ -6,6 +6,7 @@ import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { notify } from "../lib/klaviyo.server";
 import BokoBanner from "../components/admin/BokoBanner";
+import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await authenticate.admin(request);
@@ -146,6 +147,9 @@ export default function AppPayouts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Payouts" subtitle="Review and process influencer payouts." />
+            <HowToUse title="How to use this page">
+              This is where you process payments to influencers for their approved commissions. Once a commission has cleared the refund holdback period, it becomes eligible for payout. Select approved commissions and mark them as paid once you have sent the payment through your usual payment method, such as bank transfer or PayPal.
+            </HowToUse>
 
             <Card>
               <BlockStack gap="300">

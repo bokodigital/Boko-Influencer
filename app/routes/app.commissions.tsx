@@ -20,6 +20,7 @@ import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { approveEligiblePendingCommissions } from "../lib/commission.server";
 import BokoBanner from "../components/admin/BokoBanner";
+import HowToUse from "../components/admin/HowToUse";
 
 const STATUS_TONE: Record<string, "success" | "attention" | "critical" | "info"> = {
   approved: "success",
@@ -139,6 +140,9 @@ export default function AppCommissions() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Commissions" subtitle="Track influencer earnings and approval status." />
+            <HowToUse title="How to use this page">
+              This page shows every commission earned by your influencers from tracked sales. Commissions start as pending after an order comes in, move to approved once the refund window has passed, and are marked paid once you have processed a payout. Review what is owed here before running payouts.
+            </HowToUse>
             <Card>
               <BlockStack gap="300">
                 <InlineStack align="space-between">

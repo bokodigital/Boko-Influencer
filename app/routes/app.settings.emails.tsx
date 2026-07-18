@@ -25,6 +25,7 @@ import { prisma } from "../lib/db.server";
 import { encryptValue, maskAccountNumber } from "../lib/crypto.server";
 import { KLAVIYO_EVENTS, DEFAULT_TEMPLATES } from "../lib/klaviyo.server";
 import BokoBanner from "../components/admin/BokoBanner";
+import HowToUse from "../components/admin/HowToUse";
 
 /** Upgrade legacy plain-text bodies to HTML so the editor can consume them. */
 function plainTextToHtml(text: string): string {
@@ -338,6 +339,13 @@ export default function EmailSettings() {
           subtitle="Connect your own Klaviyo account, or customise the built-in emails sent for each program event."
         />
       </div>
+      <Layout>
+        <Layout.Section>
+          <HowToUse title="How to use this page">
+            Connect your Klaviyo account here to send branded emails automatically for key events: new referrals, commissions earned, payouts sent, and reward unlocks. If you do not connect Klaviyo, the app will show these details directly in the influencer portal instead, but influencers will not get an email notification.
+          </HowToUse>
+        </Layout.Section>
+      </Layout>
       <Layout>
         <Layout.Section>
           <Card>

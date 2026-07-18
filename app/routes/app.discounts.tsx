@@ -6,6 +6,7 @@ import { Page, Layout, Card, IndexTable, Badge, Text, Button, BlockStack, FormLa
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import BokoBanner from "../components/admin/BokoBanner";
+import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await authenticate.admin(request);
@@ -71,6 +72,9 @@ export default function AppDiscounts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Discount Codes" subtitle="Create and manage influencer discount codes synced to Shopify." />
+            <HowToUse title="How to use this page">
+              Manage the discount codes tied to each influencer here. These codes are synced to Shopify automatically, so when a customer uses one at checkout, Boko Influencer links the sale back to that influencer and calculates their commission. Create a new code for an influencer, or edit and deactivate existing ones.
+            </HowToUse>
 
             <Card>
               <BlockStack gap="300">
