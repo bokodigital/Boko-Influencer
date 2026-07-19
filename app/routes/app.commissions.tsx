@@ -30,10 +30,11 @@ const STATUS_TONE: Record<string, "success" | "attention" | "critical" | "info">
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
   const [commissions, globalRule, overrides, influencers] = await Promise.all([
     prisma.commission.findMany({
+      where: { influencer: { shop: session.shop } },
       orderBy: { id: "desc" },
       take: 100,
       include: {
@@ -43,11 +44,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }),
     prisma.commissionRule.findFirst({ where: { influencerId: null, active: true } }),
     prisma.commissionRule.findMany({
-      where: { influencerId: { not: null }, active: true },
+      where: { influencerId: { not: null }, active: true, influencer: { shop: session.shop } },
       include: { influencer: { select: { firstName: true, lastName: true } } },
     }),
     prisma.influencer.findMany({
-      where: { status: "approved" },
+      where: { status: "approved", shop: session.shop },
       select: { id: true, firstName: true, lastName: true },
     }),
   ]);

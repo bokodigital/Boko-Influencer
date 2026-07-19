@@ -8,13 +8,13 @@ import BokoBanner from "../components/admin/BokoBanner";
 import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
   const [influencerCount, pendingCount, commissionAgg, payoutAgg] = await Promise.all([
-    prisma.influencer.count(),
-    prisma.influencer.count({ where: { status: "pending" } }),
-    prisma.commission.aggregate({ _sum: { amount: true }, where: { status: { in: ["pending", "approved"] } } }),
-    prisma.payout.aggregate({ _sum: { amount: true }, where: { status: "completed" } }),
+    prisma.influencer.count({ where: { shop: session.shop } }),
+    prisma.influencer.count({ where: { status: "pending", shop: session.shop } }),
+    prisma.commission.aggregate({ _sum: { amount: true }, where: { status: { in: ["pending", "approved"] }, influencer: { shop: session.shop } } }),
+    prisma.payout.aggregate({ _sum: { amount: true }, where: { status: "completed", influencer: { shop: session.shop } } }),
   ]);
 
   return json({

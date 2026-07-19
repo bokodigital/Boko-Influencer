@@ -20,8 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     commissionByStatus[row.status] = Number(row._sum.amount ?? 0);
   }
 
-  const shopSession = await prisma.session.findFirst({ select: { shop: true } });
-  const shopDomain = shopSession?.shop ?? "your-store.myshopify.com";
+  const shopDomain = influencer.shop ?? "your-store.myshopify.com";
   const referralLink = `https://${shopDomain}/?ref=${influencer.referralCode}`;
 
   return json({

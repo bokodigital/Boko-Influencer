@@ -10,7 +10,7 @@ import { notify } from "../lib/klaviyo.server";
 import { evaluateRewardUnlocks } from "../lib/rewards.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { payload } = await authenticate.webhook(request);
+  const { payload, shop } = await authenticate.webhook(request);
 
   const order = payload as {
     id: number;
@@ -31,11 +31,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const influencer = discountCode
     ? await prisma.influencer.findFirst({
-        where: { discountCodes: { some: { code: { equals: discountCode, mode: "insensitive" }, active: true } } },
+        where: { shop, discountCodes: { some: { code: { equals: discountCode, mode: "insensitive" }, active: true } } },
       })
     : refCookieAttr
     ? await prisma.influencer.findFirst({
-        where: { referralCode: refCookieAttr },
+        where: { shop, referralCode: refCookieAttr },
       })
     : null;
 

@@ -9,16 +9,17 @@ import BokoBanner from "../components/admin/BokoBanner";
 import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
   const discountCodes = await prisma.discountCode.findMany({
+    where: { influencer: { shop: session.shop } },
     orderBy: { id: "desc" },
     take: 100,
     include: { influencer: { select: { firstName: true, lastName: true } } },
   });
 
   const influencers = await prisma.influencer.findMany({
-    where: { status: "approved" },
+    where: { status: "approved", shop: session.shop },
     select: { id: true, firstName: true, lastName: true, referralCode: true },
     orderBy: { firstName: "asc" },
   });

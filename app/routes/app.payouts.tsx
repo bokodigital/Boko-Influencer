@@ -9,9 +9,10 @@ import BokoBanner from "../components/admin/BokoBanner";
 import HowToUse from "../components/admin/HowToUse";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
   const payouts = await prisma.payout.findMany({
+    where: { influencer: { shop: session.shop } },
     orderBy: { id: "desc" },
     take: 100,
     include: {
@@ -20,7 +21,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   const owedCommissions = await prisma.commission.findMany({
-    where: { status: "approved", payoutId: null },
+    where: { status: "approved", payoutId: null, influencer: { shop: session.shop } },
     include: {
       influencer: {
         select: {

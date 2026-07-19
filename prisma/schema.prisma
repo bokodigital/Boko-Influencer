@@ -76,6 +76,7 @@ model Influencer {
   profilePhotoUrl String?
   bio           String?
   referralCode  String            @unique
+  shop String?
   createdAt     DateTime          @default(now())
 
   referralLinks   ReferralLink[]

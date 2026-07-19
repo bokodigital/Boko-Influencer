@@ -6,9 +6,10 @@ import { prisma } from "../lib/db.server";
 import InfluencerManagement from "../components/admin/InfluencerManagement";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
   const influencers = await prisma.influencer.findMany({
+    where: { shop: session.shop },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -26,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
   const form = await request.formData();
   const firstName = String(form.get("firstName") || "").trim();
   const lastName = String(form.get("lastName") || "").trim();
@@ -46,6 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
         referralCode,
         status: "pending",
         authUserId: "manual-" + referralCode,
+        shop: session.shop,
       },
     });
   } catch (err: any) {
