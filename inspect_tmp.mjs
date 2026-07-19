@@ -1,0 +1,13 @@
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+const influencers = await prisma.influencer.findMany({ select: { id: true, firstName: true, lastName: true, email: true, referralCode: true, createdAt: true } });
+console.log("INFLUENCERS:", JSON.stringify(influencers, null, 2));
+const codes = await prisma.discountCode.findMany({ select: { id: true, code: true, influencerId: true } });
+console.log("DISCOUNT CODES:", JSON.stringify(codes, null, 2));
+const orders = await prisma.order.findMany({ select: { id: true, shopifyOrderId: true, influencerId: true, discountCodeUsed: true } });
+console.log("ORDERS:", JSON.stringify(orders, null, 2));
+const rules = await prisma.commissionRule.findMany({ select: { id: true, influencerId: true, type: true, value: true } });
+console.log("RULES:", JSON.stringify(rules, null, 2));
+const sessions = await prisma.session.findMany({ select: { id: true, shop: true } });
+console.log("SESSIONS:", JSON.stringify(sessions, null, 2));
+await prisma.$disconnect();

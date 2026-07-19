@@ -7,6 +7,7 @@ import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { calculateCommissionForOrder } from "../lib/commission.server";
 import { notify } from "../lib/klaviyo.server";
+import { evaluateRewardUnlocks } from "../lib/rewards.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { payload } = await authenticate.webhook(request);
@@ -73,6 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (commission) {
+    await evaluateRewardUnlocks();
     await notify("Commission Earned", influencer.id, {
       orderId: orderRow.id,
       amount: commission.amount,
