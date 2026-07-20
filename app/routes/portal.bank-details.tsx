@@ -16,6 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     influencerName: `${influencer.firstName} ${influencer.lastName}`,
+    stripeConnected: !!influencer.stripeAccountId,
     bankDetail: bankDetail
       ? {
           method: bankDetail.method,
@@ -61,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PortalBankDetails() {
-  const { influencerName, bankDetail } = useLoaderData<typeof loader>();
+  const { influencerName, bankDetail, stripeConnected } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<{ ok?: boolean }>();
   const [method, setMethod] = useState(bankDetail?.method ?? "bank_transfer");
 
@@ -118,6 +119,11 @@ export default function PortalBankDetails() {
         </button>
         {fetcher.data?.ok && <div style={{ color: "#000000", fontWeight: 600, fontSize: "13px", marginTop: "8px" }}>Saved — pending verification.</div>}
       </fetcher.Form>
+        <div style={{ background: "#fff", borderRadius: "10px", padding: "1rem 1.25rem", marginTop: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+          <div style={{ fontWeight: 700, fontSize: "16px", marginBottom: "6px" }}>Pay me via Stripe</div>
+          <div style={{ fontSize: "13px", color: "#000000", marginBottom: "12px" }}>{stripeConnected ? "Your Stripe account is connected. Re-open onboarding to update details." : "Connect a Stripe account to receive payouts to your bank."}</div>
+          <a href="/portal/stripe-connect" style={{ display: "inline-block", padding: "10px 20px", background: "#000000", color: "#BFFC00", fontWeight: 700, borderRadius: "8px", textDecoration: "none", fontSize: "14px" }}>{stripeConnected ? "Manage Stripe" : "Connect with Stripe"}</a>
+        </div>
     </PortalShell>
   );
 }

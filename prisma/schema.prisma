@@ -50,6 +50,7 @@ enum RewardStatus {
 enum PayoutMethod {
   bank_transfer
   paypal
+  stripe
   other
 }
 
@@ -79,6 +80,7 @@ model Influencer {
   shop String?
   paypalEmail String?
   payoutMethod String?
+  stripeAccountId String?
   createdAt     DateTime          @default(now())
 
   referralLinks   ReferralLink[]
