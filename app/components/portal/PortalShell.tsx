@@ -16,7 +16,6 @@ export default function PortalShell({ influencerName, children }: { influencerNa
     <div style={{ minHeight: "100vh", background: "#F8F9FC", fontFamily: "Poppins, sans-serif" }}>
       <div style={{ background: "#000000", color: "#FFFFFF", padding: "1rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ width: "32px", height: "32px", background: "#BFFC00", borderRadius: "6px" }} />
           <div style={{ fontWeight: 700 }}>Boko Influencer Portal</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
