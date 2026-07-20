@@ -81,6 +81,11 @@ model Influencer {
   paypalEmail String?
   payoutMethod String?
   stripeAccountId String?
+  instagramHandle String?
+  tiktokHandle String?
+  audienceSize String?
+  pitch String?
+  passwordHash String?
   createdAt     DateTime          @default(now())
 
   referralLinks   ReferralLink[]
