@@ -94,7 +94,8 @@ export default function PortalBankDetails() {
           <option value="other">Other</option>
         </select>
 
-        {method === "bank_transfer" && (
+        {method === "paypal" && (<><label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>PayPal email</label><input name="paypalEmail" type="email" defaultValue={bankDetail?.paypalEmail ?? ""} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #000000", marginBottom: "1rem", boxSizing: "border-box" }} /></>)}
+              {method === "bank_transfer" && (
           <>
             <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>Account name</label>
             <input name="accountName" style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #000000", marginBottom: "1rem", boxSizing: "border-box" }} />

@@ -5,6 +5,7 @@ import { Page, Layout, Card, IndexTable, Badge, Text, Button, BlockStack, Inline
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { notify } from "../lib/klaviyo.server";
+import { sendPayPalPayout } from "../lib/paypal.server";
 import BokoBanner from "../components/admin/BokoBanner";
 import HowToUse from "../components/admin/HowToUse";
 
@@ -16,7 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     orderBy: { id: "desc" },
     take: 100,
     include: {
-      influencer: { select: { firstName: true, lastName: true } },
+      influencer: { select: { firstName: true, lastName: true, bankDetails: { where: { isDefault: true }, take: 1, select: { method: true, paypalEmail: true } } } },
     },
   });
 
@@ -53,6 +54,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     payouts: payouts.map((p) => ({
+      paypalReady: !!(p.influencer.bankDetails?.[0]?.method === "paypal" && p.influencer.bankDetails?.[0]?.paypalEmail),
       id: p.id,
       influencerName: `${p.influencer.firstName} ${p.influencer.lastName}`,
       amount: p.amount.toString(),
@@ -127,6 +129,18 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ ok: true });
   }
 
+  if (intent === "send_paypal") {
+    const payoutId = String(formData.get("payoutId"));
+    const payout = await prisma.payout.findFirst({ where: { id: payoutId, influencer: { shop: session.shop } }, include: { influencer: { include: { bankDetails: { where: { isDefault: true }, take: 1 } } } } });
+    const bd = payout?.influencer?.bankDetails?.[0];
+    if (!payout || !bd || bd.method !== "paypal" || !bd.paypalEmail) {
+      return json({ error: "No PayPal email on file." }, { status: 400 });
+    }
+    await sendPayPalPayout({ email: bd.paypalEmail, amount: Number(payout.amount), currency: "AUD", note: "Boko commission payout" });
+    await prisma.payout.update({ where: { id: payout.id }, data: { status: "processing", processedAt: new Date(), processedBy: session.shop } });
+    return json({ ok: true });
+  }
+
   return json({ error: "Unknown intent" }, { status: 400 });
 }
 
@@ -192,6 +206,13 @@ export default function AppPayouts() {
                   </IndexTable.Cell>
                   <IndexTable.Cell>
                     <InlineStack gap="200">
+                {p.paypalReady && (p.status === "pending" || p.status === "processing") && (
+                  <statusFetcher.Form method="post">
+                    <input type="hidden" name="intent" value="send_paypal" />
+                    <input type="hidden" name="payoutId" value={p.id} />
+                    <Button submit size="slim" variant="primary">Send via PayPal</Button>
+                  </statusFetcher.Form>
+                )}
                       {p.status === "pending" && (
                         <statusFetcher.Form method="post">
                           <input type="hidden" name="intent" value="mark_processing" />

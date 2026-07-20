@@ -77,6 +77,8 @@ model Influencer {
   bio           String?
   referralCode  String            @unique
   shop String?
+  paypalEmail String?
+  payoutMethod String?
   createdAt     DateTime          @default(now())
 
   referralLinks   ReferralLink[]
