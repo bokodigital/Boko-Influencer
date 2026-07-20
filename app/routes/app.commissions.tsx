@@ -76,7 +76,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
   const form = await request.formData();
   const intent = String(form.get("intent") || "");
 
@@ -106,6 +106,12 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ ok: true });
   }
 
+  if (intent === "approve_commission") {
+    const commissionId = String(form.get("commissionId") || "");
+    await prisma.commission.updateMany({ where: { id: commissionId, influencer: { shop: session.shop } }, data: { status: "approved" } });
+    return json({ ok: true });
+  }
+
   return json({ error: "Unknown action" }, { status: 400 });
 }
 
@@ -113,6 +119,7 @@ export default function AppCommissions() {
   const { commissions, globalRule, overrides, influencers } = useLoaderData<typeof loader>();
   const ruleFetcher = useFetcher();
   const overrideFetcher = useFetcher();
+  const approveOneFetcher = useFetcher();
   const approveFetcher = useFetcher<{ ok?: boolean; approvedCount?: number }>();
 
   const [globalType, setGlobalType] = useState(globalRule?.type || "percentage");
@@ -130,7 +137,7 @@ export default function AppCommissions() {
         {c.currency} {c.amount}
       </IndexTable.Cell>
       <IndexTable.Cell>
-        <Badge tone={STATUS_TONE[c.status] ?? "info"}>{c.status}</Badge>
+        <InlineStack gap="200" blockAlign="center"><Badge tone={STATUS_TONE[c.status] ?? "info"}>{c.status}</Badge>{c.status === "pending" && (<approveOneFetcher.Form method="post"><input type="hidden" name="intent" value="approve_commission" /><input type="hidden" name="commissionId" value={c.id} /><Button submit size="slim" variant="primary">Approve</Button></approveOneFetcher.Form>)}</InlineStack>
       </IndexTable.Cell>
     </IndexTable.Row>
   ));
