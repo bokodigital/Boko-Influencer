@@ -135,9 +135,7 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
                 </Text>
               </div>
             </div>
-            <HowToUse title="How to use this page">
-              This is where you manage everyone in the influencer program. Click Add influencer to manually add someone, or approve, reject or disable applicants using the status controls in the table. Each influencer gets a unique referral code and discount code that customers use at checkout, which is how their sales, commissions and payouts get tracked automatically.
-            </HowToUse>
+            <HowToUse title="How to use this page">Manage everyone in your program here. Click Add influencer to create one manually, or approve applicants who registered through your public sign-up link (they show as Pending). Set a person status to Approved to activate their account and referral link. Use the table to edit details, view their referral code, and change status. Rejected or Disabled influencers keep their history but cannot earn new commissions.</HowToUse>
 
             <Card padding="0">
             {influencers.length === 0 ? (

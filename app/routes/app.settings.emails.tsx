@@ -341,9 +341,7 @@ export default function EmailSettings() {
       </div>
       <Layout>
         <Layout.Section>
-          <HowToUse title="How to use this page">
-            Connect your Klaviyo account here to send branded emails automatically for key events: new referrals, commissions earned, payouts sent, and reward unlocks. If you do not connect Klaviyo, the app will show these details directly in the influencer portal instead, but influencers will not get an email notification.
-          </HowToUse>
+          <HowToUse title="How to use this page">Manage the automated emails sent to influencers here. Preview each template to see how it looks to recipients. These lifecycle emails cover moments such as approval, commission earned, and payout sent, and are delivered through your connected Klaviyo account.</HowToUse>
         </Layout.Section>
       </Layout>
       <Layout>

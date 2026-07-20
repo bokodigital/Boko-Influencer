@@ -73,9 +73,7 @@ export default function AppDiscounts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Discount Codes" subtitle="Create and manage influencer discount codes synced to Shopify." />
-            <HowToUse title="How to use this page">
-              Manage the discount codes tied to each influencer here. These codes are synced to Shopify automatically, so when a customer uses one at checkout, Boko Influencer links the sale back to that influencer and calculates their commission. Create a new code for an influencer, or edit and deactivate existing ones.
-            </HowToUse>
+            <HowToUse title="How to use this page">Create the discount codes your influencers share with their audience. Each code is tied to an influencer, so any order using it is automatically attributed to them and generates a commission. Set the discount value, create the code, then give it to the influencer to promote alongside their referral link.</HowToUse>
 
             <Card>
               <BlockStack gap="300">

@@ -175,9 +175,7 @@ export default function AppPayouts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Payouts" subtitle="Review and process influencer payouts." />
-            <HowToUse title="How to use this page">
-              This is where you process payments to influencers for their approved commissions. Once a commission has cleared the refund holdback period, it becomes eligible for payout. Select approved commissions and mark them as paid once you have sent the payment through your usual payment method, such as bank transfer or PayPal.
-            </HowToUse>
+            <HowToUse title="How to use this page">Pay your influencers their approved commissions here. Create a payout for an influencer, then send it. If the influencer has connected PayPal you can Send via PayPal, and once they finish Stripe onboarding you can Send via Stripe. Mark a payout Completed once paid to move its commissions to Paid. Add your PayPal or Stripe API keys in the app secrets before sending live payouts.</HowToUse>
 
             <Card>
               <BlockStack gap="300">

@@ -106,9 +106,7 @@ export default function AppRewards() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Rewards" subtitle="Set up milestone rewards and unlock them automatically as influencers hit targets." />
-            <HowToUse title="How to use this page">
-              Set up milestone rewards to keep influencers motivated, for example a bonus after they reach a certain number of referred sales or total revenue. Rewards unlock automatically once an influencer hits the target you set, and they will be notified so you do not have to track this manually.
-            </HowToUse>
+            <HowToUse title="How to use this page">Set milestone rewards to keep influencers motivated. Define a target, such as a number of referred orders or total sales, and the bonus unlocked when they reach it. Rewards are evaluated automatically as orders come in, and unlocked rewards appear on the influencer portal so they can track their progress.</HowToUse>
 
             <Card>
               <BlockStack gap="300">

@@ -148,9 +148,7 @@ export default function AppCommissions() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Commissions" subtitle="Track influencer earnings and approval status." />
-            <HowToUse title="How to use this page">
-              This page shows every commission earned by your influencers from tracked sales. Commissions start as pending after an order comes in, move to approved once the refund window has passed, and are marked paid once you have processed a payout. Review what is owed here before running payouts.
-            </HowToUse>
+            <HowToUse title="How to use this page">Every order placed with an influencer referral code creates a commission here, starting as Pending. Review each one and click Approve to confirm it, or leave it pending during your refund window. Approved commissions become payable and appear on the Payouts page. Amounts are calculated automatically from each influencer commission rate.</HowToUse>
             <Card>
               <BlockStack gap="300">
                 <InlineStack align="space-between">

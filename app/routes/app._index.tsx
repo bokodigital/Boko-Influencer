@@ -44,9 +44,7 @@ export default function AppIndex() {
               title="Influencer marketing dashboard"
               subtitle="Track referrals, approve influencers, and manage commission payouts."
             />
-            <HowToUse title="How to use this dashboard">
-              This is your home overview. It shows how many influencers you have in total, how many are waiting for approval, how much commission is currently owed to influencers, and how much has already been paid out so far. Use the pages in the left-hand navigation to manage influencers, commissions, payouts, discount codes and rewards in more detail.
-            </HowToUse>
+            <HowToUse title="How to use this dashboard">This is your influencer marketing hub. Use the left navigation to run each part of the program. Influencers: add people manually or approve applicants who signed up through your public registration link (they appear as Pending). Commissions: review and approve the commission earned on each referred order. Payouts: pay approved commissions through PayPal or Stripe. Discounts: create the referral codes influencers share. Rewards: set milestone bonuses. Typical flow: approve an influencer, share their referral link and code, then approve their commissions and pay them out.</HowToUse>
             <InlineGrid columns={4} gap="400">
               {stats.map((s) => (
                 <Card key={s.label}>
