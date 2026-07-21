@@ -93,7 +93,7 @@ export default function AppRewards() {
   const actionFetcher = useFetcher();
 
   const [influencerId, setInfluencerId] = useState(influencers[0]?.id ?? "");
-  const [type, setType] = useState<"bonus" | "discount_code" | "store_credit" | "tier_upgrade">("bonus");
+  const [type, setType] = useState<"bonus" | "discount_code" | "store_credit" | "tier_upgrade">("discount_code");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
@@ -144,10 +144,7 @@ export default function AppRewards() {
                       label="Reward type"
                       name="type"
                       options={[
-                        { label: "Bonus", value: "bonus" },
                         { label: "Discount code", value: "discount_code" },
-                        { label: "Store credit", value: "store_credit" },
-                        { label: "Tier upgrade", value: "tier_upgrade" },
                       ]}
                       value={type}
                       onChange={(v) => setType(v as typeof type)}

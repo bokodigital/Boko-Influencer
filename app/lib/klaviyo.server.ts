@@ -290,6 +290,8 @@ export async function notify(
 
   const shop = (await getCurrentShop()) || influencer.shop;
   const klaviyoKey = shop ? await getShopKlaviyoKey(shop) : null;
+  const portalCode = shop ? (await prisma.shopSettings.findUnique({ where: { shop } }))?.portalCode ?? null : null;
+  const portalLoginUrl = (process.env.SHOPIFY_APP_URL || "") + "/portal/login" + (portalCode ? "?code=" + portalCode : "");
 
   const notification = await prisma.notification.create({
     data: {
@@ -307,6 +309,8 @@ export async function notify(
     } else if (shop) {
       await sendBuiltInEmail(shop, event, influencer.email, {
         first_name: influencer.firstName,
+        referral_code: influencer.referralCode,
+        portal_login_url: portalLoginUrl,
         ...properties,
       });
     } else {
