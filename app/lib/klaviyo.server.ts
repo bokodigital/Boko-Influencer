@@ -2,8 +2,9 @@
 // Priority per shop:
 //   1. If the shop has connected their own Klaviyo account (Settings > Emails),
 //      push the event to Klaviyo and let their flow send the email.
-//   2. Otherwise, send a built-in transactional email via Resend, using the
-//      shop's saved template if they've customized it, or a sensible default.
+//   2. Otherwise, send a built-in transactional email via SMTP (Brevo / any
+//      provider), using the shop's saved template if they've customised it, or
+//      a sensible default.  Falls back to Resend if SMTP_HOST is not set.
 import { prisma } from "./db.server";
 import { decryptValue } from "./crypto.server";
 
@@ -23,9 +24,10 @@ export const KLAVIYO_EVENTS = [
 export type KlaviyoEvent = (typeof KLAVIYO_EVENTS)[number];
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-// Update VERIFIED_SENDER_ADDRESS once a real domain is verified in Resend.
-const VERIFIED_SENDER_ADDRESS = "onboarding@resend.dev";
-const DEFAULT_FROM = `Influencer Program <${VERIFIED_SENDER_ADDRESS}>`;
+// Primary sender address — comes from the SMTP_FROM env var (e.g. admin@boko.com.au).
+// Falls back to SMTP_USER, then a generic placeholder if neither is set.
+const SENDER_ADDRESS = process.env.SMTP_FROM || process.env.SMTP_USER || "noreply@example.com";
+const DEFAULT_FROM = `Influencer Program <${SENDER_ADDRESS}>`;
 
 export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: string }> = {
   "Influencer Registered": {
@@ -133,7 +135,7 @@ async function pushToKlaviyo(
 
 function shopSenderFrom(senderName?: string | null): string {
   const name = senderName?.trim();
-  return `${name || "Influencer Program"} <${VERIFIED_SENDER_ADDRESS}>`;
+  return `${name || "Influencer Program"} <${SENDER_ADDRESS}>`;
 }
 
 function htmlToPlainText(html: string): string {
@@ -330,10 +332,14 @@ export async function notify(
   }
 }
 
-// Provider-agnostic SMTP delivery (Brevo, Gmail, SendGrid, etc.). Used when SMTP_HOST is set; falls back to Resend otherwise.
+// Provider-agnostic delivery. SMTP (Brevo / any provider) when SMTP_HOST is
+// set; falls back to Resend when only RESEND_API_KEY is present.
+// The `from` argument already carries the display name built by shopSenderFrom,
+// e.g. "Boko Rewards <admin@boko.com.au>" — pass it straight through to both
+// transports so the display name is preserved in the inbox.
 async function deliverEmail(to: string, subject: string, html: string, from: string) {
+  const text = htmlToPlainText(html);
   if (process.env.SMTP_HOST) {
-    // -ignore -- nodemailer has no bundled types
     const nm: any = await import("nodemailer");
     const transport = (nm.default ?? nm).createTransport({
       host: process.env.SMTP_HOST,
@@ -341,7 +347,7 @@ async function deliverEmail(to: string, subject: string, html: string, from: str
       secure: Number(process.env.SMTP_PORT) === 465,
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
-    await transport.sendMail({ from: process.env.SMTP_FROM || from, to, subject, html });
+    await transport.sendMail({ from, to, subject, html, text });
     return;
   }
   await sendViaResend(to, subject, html, from);
