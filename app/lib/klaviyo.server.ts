@@ -276,7 +276,7 @@ async function sendBuiltInEmail(
     buttonColor: settings?.buttonColor,
     shopName: settings?.senderName,
   });
-  await sendViaResend(email, subject, html, from);
+  await deliverEmail(email, subject, html, from);
 }
 
 export async function notify(
@@ -328,4 +328,21 @@ export async function notify(
     });
     console.error(`[notify] failed to send notification for event "${event}", influencer ${influencerId}:`, err);
   }
+}
+
+// Provider-agnostic SMTP delivery (Brevo, Gmail, SendGrid, etc.). Used when SMTP_HOST is set; falls back to Resend otherwise.
+async function deliverEmail(to: string, subject: string, html: string, from: string) {
+  if (process.env.SMTP_HOST) {
+    // -ignore -- nodemailer has no bundled types
+    const nm: any = await import("nodemailer");
+    const transport = (nm.default ?? nm).createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+    await transport.sendMail({ from: process.env.SMTP_FROM || from, to, subject, html });
+    return;
+  }
+  await sendViaResend(to, subject, html, from);
 }

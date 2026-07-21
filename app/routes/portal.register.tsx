@@ -4,6 +4,7 @@ import { useActionData, useLoaderData, Form, useNavigation } from "@remix-run/re
 import { randomBytes } from "crypto";
 import { prisma } from "../lib/db.server";
 import { hashPassword } from "../lib/password.server";
+import { notify } from "../lib/klaviyo.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -48,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
     referralCode = base + Math.floor(1000 + Math.random() * 9000);
   }
 
-  await prisma.influencer.create({
+  const createdInfluencer = await prisma.influencer.create({
     data: {
       authUserId: "reg-" + randomBytes(12).toString("hex"),
       firstName,
@@ -66,6 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
+  try { await notify("Influencer Registered", createdInfluencer.id, {}); } catch (e) { console.error("[register] signup email failed", e); }
   return json({ ok: true });
 }
 
