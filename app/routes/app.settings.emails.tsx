@@ -341,7 +341,7 @@ export default function EmailSettings() {
       </div>
       <Layout>
         <Layout.Section>
-          <HowToUse title="How to use Email settings"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Preview each template to see how it looks to recipients.</li><li>Templates cover approval, commission earned, and payout sent.</li><li>Emails are delivered through your connected Klaviyo account.</li></ul></HowToUse>
+          <HowToUse title="Instructions for the Email settings module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Preview each template to see how it looks to recipients.</li><li>Templates cover approval, commission earned, and payout sent.</li><li>Emails are delivered through your connected Klaviyo account.</li></ul></HowToUse>
         </Layout.Section>
       </Layout>
       <Layout>

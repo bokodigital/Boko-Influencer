@@ -73,7 +73,7 @@ export default function AppDiscounts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Discount Codes" subtitle="Create and manage influencer discount codes synced to Shopify." />
-            <HowToUse title="How to use Discounts"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Create a discount code and tie it to an influencer.</li><li>Any order using the code is attributed to that influencer.</li><li>Set the discount value, then create the code.</li><li>Give the code to the influencer to promote with their referral link.</li></ul></HowToUse>
+            <HowToUse title="Instructions for the Discounts module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Create a discount code and tie it to an influencer.</li><li>Any order using the code is attributed to that influencer.</li><li>Set the discount value, then create the code.</li><li>Give the code to the influencer to promote with their referral link.</li></ul></HowToUse>
 
             <Card>
               <BlockStack gap="300">

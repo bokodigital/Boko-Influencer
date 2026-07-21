@@ -288,7 +288,7 @@ export async function notify(
     where: { id: influencerId },
   });
 
-  const shop = await getCurrentShop();
+  const shop = (await getCurrentShop()) || influencer.shop;
   const klaviyoKey = shop ? await getShopKlaviyoKey(shop) : null;
 
   const notification = await prisma.notification.create({

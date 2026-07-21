@@ -175,7 +175,7 @@ export default function AppPayouts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Payouts" subtitle="Review and process influencer payouts." />
-            <HowToUse title="How to use Payouts"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Create a payout for an influencer, then send it.</li><li>Use Send via PayPal if the influencer added a PayPal email.</li><li>Use Send via Stripe once the influencer finishes Stripe onboarding.</li><li>Mark a payout Completed to move its commissions to Paid.</li><li>Add PayPal or Stripe keys in the app secrets before live payouts.</li></ul></HowToUse>
+            <HowToUse title="Instructions for the Payouts module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Create a payout for an influencer, then send it.</li><li>Use Send via PayPal if the influencer added a PayPal email.</li><li>Use Send via Stripe once the influencer finishes Stripe onboarding.</li><li>Mark a payout Completed to move its commissions to Paid.</li><li>Add PayPal or Stripe keys in the app secrets before live payouts.</li></ul></HowToUse>
 
             <Card>
               <BlockStack gap="300">

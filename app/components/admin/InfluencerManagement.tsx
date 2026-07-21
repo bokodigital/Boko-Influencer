@@ -135,7 +135,7 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
                 </Text>
               </div>
             </div>
-            <HowToUse title="How to use Influencers"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li></ul></HowToUse>
+            <HowToUse title="Instructions for the Influencer module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li></ul></HowToUse>
         <Card>
           <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>Your influencer sign-up link</div>
           <div style={{ fontSize: "13px", color: "#616161", marginBottom: "8px" }}>Share this link with influencers so they can apply. Applications appear below as Pending for you to approve.</div>
