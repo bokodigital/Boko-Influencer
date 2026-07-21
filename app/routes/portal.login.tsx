@@ -17,7 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const shop = setting?.shop || null;
   const email = String(formData.get("email") || "").trim().toLowerCase();
 
-  const influencer = await prisma.influencer.findFirst({ where: { email, shop } });
+  const influencer = await prisma.influencer.findFirst({ where: shop ? { email, shop } : { email } });
 
   if (!influencer || influencer.status !== "approved") {
     return json({

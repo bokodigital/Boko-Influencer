@@ -45,8 +45,8 @@ export async function evaluateRewardUnlocks() {
       });
       await notify("Reward Unlocked", reward.influencerId, {
         rewardId: reward.id,
-        title: reward.title,
-        type: reward.type,
+        reward_title: reward.title,
+        reward_type: reward.type,
       });
       unlockedCount += 1;
     }

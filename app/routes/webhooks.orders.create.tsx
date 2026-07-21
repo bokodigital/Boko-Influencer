@@ -76,7 +76,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (commission) {
     await evaluateRewardUnlocks();
     await notify("Commission Earned", influencer.id, {
-      orderId: orderRow.id,
+      order_id: orderRow.id,
       amount: commission.amount,
     });
     await notify("New Order via Referral", influencer.id, {
