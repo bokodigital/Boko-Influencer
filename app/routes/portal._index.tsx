@@ -21,7 +21,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const shopDomain = influencer.shop ?? "your-store.myshopify.com";
-  const referralLink = `https://${shopDomain}/?ref=${influencer.referralCode}`;
+  const referralLink = `${process.env.SHOPIFY_APP_URL ?? "https://boko-influencer.replit.app"}/r/${influencer.referralCode}`;
 
   return json({
     influencerName: `${influencer.firstName} ${influencer.lastName}`,
