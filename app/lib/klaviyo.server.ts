@@ -290,7 +290,7 @@ export async function notify(
     where: { id: influencerId },
   });
 
-  const shop = (await getCurrentShop()) || influencer.shop;
+  const shop = influencer.shop || (await getCurrentShop());
   const klaviyoKey = shop ? await getShopKlaviyoKey(shop) : null;
   const portalCode = shop ? (await prisma.shopSettings.findUnique({ where: { shop } }))?.portalCode ?? null : null;
   const portalLoginUrl = (process.env.SHOPIFY_APP_URL || "") + "/portal/login" + (portalCode ? "?code=" + portalCode : "");
