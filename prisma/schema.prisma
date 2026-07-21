@@ -71,13 +71,16 @@ model Influencer {
   authUserId    String            @unique
   firstName     String
   lastName      String
-  email         String            @unique
+  email         String
   phone         String?
   status        InfluencerStatus  @default(pending)
   profilePhotoUrl String?
   bio           String?
-  referralCode  String            @unique
+  referralCode  String
   shop String?
+
+  @@unique([shop, email])
+  @@unique([shop, referralCode])
   paypalEmail String?
   payoutMethod String?
   stripeAccountId String?
@@ -275,6 +278,7 @@ model Session {
 model ShopSettings {
   id                     String   @id @default(cuid())
   shop                   String   @unique
+  portalCode String? @unique
   klaviyoApiKeyEncrypted String?
   senderName             String?
   senderEmail            String?

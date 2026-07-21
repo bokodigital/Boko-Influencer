@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
+import crypto from "node:crypto";
 import InfluencerManagement from "../components/admin/InfluencerManagement";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -23,7 +24,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  return json({ influencers });
+  let settings = await prisma.shopSettings.findUnique({ where: { shop: session.shop } });
+  if (!settings || !settings.portalCode) {
+    const genCode = crypto.randomBytes(6).toString("hex");
+    settings = await prisma.shopSettings.upsert({ where: { shop: session.shop }, update: { portalCode: genCode }, create: { shop: session.shop, portalCode: genCode } });
+  }
+  const registerUrl = new URL(request.url).origin + "/portal/register?code=" + settings.portalCode;
+  return json({ influencers, registerUrl });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -58,6 +65,6 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AppInfluencers() {
-  const { influencers } = useLoaderData<typeof loader>();
-  return <InfluencerManagement influencers={influencers} />;
+  const { influencers, registerUrl } = useLoaderData<typeof loader>();
+  return <InfluencerManagement influencers={influencers} registerUrl={registerUrl} />;
 }

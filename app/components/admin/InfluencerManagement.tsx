@@ -46,7 +46,7 @@ type Influencer = {
   createdAt: string;
 };
 
-export default function InfluencerManagement({ influencers }: { influencers: Influencer[] }) {
+export default function InfluencerManagement({ influencers, registerUrl }: { influencers: Influencer[]; registerUrl: string }) {
   const createFetcher = useFetcher<{ ok?: boolean; error?: string }>();
   const statusFetcher = useFetcher();
   const [modalOpen, setModalOpen] = useState(false);
@@ -136,6 +136,11 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
               </div>
             </div>
             <HowToUse title="How to use Influencers"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li></ul></HowToUse>
+        <Card>
+          <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>Your influencer sign-up link</div>
+          <div style={{ fontSize: "13px", color: "#616161", marginBottom: "8px" }}>Share this link with influencers so they can apply. Applications appear below as Pending for you to approve.</div>
+          <div style={{ fontSize: "13px", background: "#F1F1F1", padding: "8px 10px", borderRadius: "6px", wordBreak: "break-all", fontFamily: "monospace" }}>{registerUrl}</div>
+        </Card>
 
             <Card padding="0">
             {influencers.length === 0 ? (

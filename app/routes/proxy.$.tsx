@@ -21,13 +21,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const referralCode = url.searchParams.get("ref");
+  const shop = url.searchParams.get("shop") || "";
 
   if (!referralCode) {
     return json({ ok: false, reason: "missing_ref" }, { status: 400 });
   }
 
-  const influencer = await prisma.influencer.findUnique({
-    where: { referralCode },
+  const influencer = await prisma.influencer.findFirst({ where: { referralCode, shop },
   });
 
   if (!influencer || influencer.status !== "approved") {

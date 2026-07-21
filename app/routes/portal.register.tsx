@@ -7,7 +7,9 @@ import { hashPassword } from "../lib/password.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  return json({ shop: url.searchParams.get("shop") || "" });
+  const code = url.searchParams.get("code") || "";
+  const setting = code ? await prisma.shopSettings.findUnique({ where: { portalCode: code } }) : null;
+  return json({ code, valid: Boolean(setting) });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -21,7 +23,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const audienceSize = String(form.get("audienceSize") || "").trim();
   const pitch = String(form.get("pitch") || "").trim();
   const password = String(form.get("password") || "");
-  const shop = String(form.get("shop") || "").trim() || null;
+  const code = String(form.get("code") || "").trim();
+  const setting = code ? await prisma.shopSettings.findUnique({ where: { portalCode: code } }) : null;
+  const shop = setting?.shop || null;
+  if (!shop) return json({ error: "This registration link is invalid. Please use the link your store shared with you." }, { status: 400 });
 
   if (!firstName || !lastName || !email || !password) {
     return json({ error: "Please fill in your name, email and password." }, { status: 400 });
@@ -30,7 +35,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ error: "Password must be at least 8 characters." }, { status: 400 });
   }
 
-  const existing = await prisma.influencer.findUnique({ where: { email } });
+  const existing = await prisma.influencer.findFirst({ where: { shop, email } });
   if (existing) {
     return json({ error: "An application with this email already exists." }, { status: 400 });
   }
@@ -38,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const base = (firstName + lastName).replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 12) || "INFLU";
   let referralCode = base + Math.floor(1000 + Math.random() * 9000);
   for (let i = 0; i < 6; i++) {
-    const clash = await prisma.influencer.findUnique({ where: { referralCode } });
+    const clash = await prisma.influencer.findFirst({ where: { shop, referralCode } });
     if (!clash) break;
     referralCode = base + Math.floor(1000 + Math.random() * 9000);
   }
@@ -65,7 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Register() {
-  const { shop } = useLoaderData<typeof loader>();
+  const { code } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
   const submitting = nav.state !== "idle";
@@ -91,7 +96,7 @@ export default function Register() {
         <div style={{ background: "#fff0f0", border: "1px solid #d00", color: "#b00", padding: "10px 12px", borderRadius: "8px", marginBottom: "1rem", fontSize: "13px" }}>{actionData.error}</div>
       ) : null}
       <Form method="post">
-        <input type="hidden" name="shop" value={shop} />
+        <input type="hidden" name="code" value={code} />
         <label style={labelStyle}>First name</label>
         <input name="firstName" style={inputStyle} required />
         <label style={labelStyle}>Last name</label>

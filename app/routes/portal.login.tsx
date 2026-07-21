@@ -1,15 +1,23 @@
 import { json } from "@remix-run/node";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { prisma } from "../lib/db.server";
 import { createMagicLinkToken } from "../lib/portal-auth.server";
 import { notify } from "../lib/klaviyo.server";
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  return json({ code: url.searchParams.get("code") || "" });
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+  const code = String(formData.get("code") || "").trim();
+  const setting = code ? await prisma.shopSettings.findUnique({ where: { portalCode: code } }) : null;
+  const shop = setting?.shop || null;
   const email = String(formData.get("email") || "").trim().toLowerCase();
 
-  const influencer = await prisma.influencer.findUnique({ where: { email } });
+  const influencer = await prisma.influencer.findFirst({ where: { email, shop } });
 
   if (!influencer || influencer.status !== "approved") {
     return json({
@@ -30,6 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function PortalLogin() {
   const fetcher = useFetcher<{ sent?: boolean; link?: string; message?: string }>();
+  const { code } = useLoaderData<typeof loader>();
 
   return (
     <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
@@ -43,7 +52,7 @@ export default function PortalLogin() {
         </div>
 
         {!fetcher.data?.sent && (
-          <fetcher.Form method="post">
+          <fetcher.Form method="post"><input type="hidden" name="code" value={code} />
             <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>Email address</label>
             <input
               type="email"
@@ -72,7 +81,7 @@ export default function PortalLogin() {
             )}
           </div>
         )}
-        <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Not an influencer yet? </span><a href="/portal/register" style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to become an influencer</a></div>
+        <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Not an influencer yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to become an influencer</a></div>
       </div>
     </div>
   );

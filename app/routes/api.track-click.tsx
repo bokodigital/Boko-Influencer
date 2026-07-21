@@ -18,8 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
     country?: string;
   };
 
-  const influencer = await prisma.influencer.findUnique({
-    where: { referralCode },
+  const influencer = await prisma.influencer.findFirst({ where: { referralCode },
   });
 
   if (!influencer || influencer.status !== "approved") {
