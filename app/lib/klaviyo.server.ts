@@ -1,4 +1,4 @@
-// Notification dispatch for the Boko Influencer Program.
+// Notification dispatch for the Influencer Rewards by Boko program.
 // Priority per shop:
 //   1. If the shop has connected their own Klaviyo account (Settings > Emails),
 //      push the event to Klaviyo and let their flow send the email.
@@ -29,15 +29,15 @@ const DEFAULT_FROM = `Influencer Program <${VERIFIED_SENDER_ADDRESS}>`;
 
 export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: string }> = {
   "Influencer Registered": {
-    subject: "We've received your Boko Influencer Program application",
-    body: "Hi {{first_name}},\n\nThanks for applying to the Boko Influencer Program. We review every application manually and you'll hear back from us within 2 business days.",
+    subject: "We've received your Influencer Rewards by Boko program application",
+    body: "Hi {{first_name}},\n\nThanks for applying to the Influencer Rewards by Boko program. We review every application manually and you'll hear back from us within 2 business days.",
   },
   "Influencer Approved": {
-    subject: "You're in — welcome to the Boko Influencer Program",
+    subject: "You're in — welcome to the Influencer Rewards by Boko program",
     body: "Hi {{first_name}},\n\nYour application has been approved. Your referral code is {{referral_code}}. Log in to your dashboard here: {{portal_login_url}}",
   },
   "Influencer Rejected": {
-    subject: "An update on your Boko Influencer Program application",
+    subject: "An update on your Influencer Rewards by Boko program application",
     body: "Hi {{first_name}},\n\nAfter review, we're not able to move forward with your application at this time. We'd love to hear from you again in future.",
   },
   "Commission Earned": {
@@ -61,7 +61,7 @@ export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: st
     body: "Hi {{first_name}},\n\nYour referral link just got a new click.",
   },
   "Portal Login Link": {
-    subject: "Your Boko Influencer Portal login link",
+    subject: "Your Influencer Rewards by Boko login link",
     body: "Hi {{first_name}},\n\nClick here to log in to your dashboard: {{link}}\n\nThis link is valid for 15 minutes. Didn't request this? You can safely ignore this email.",
   },
   "New Order via Referral": {

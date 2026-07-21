@@ -126,7 +126,7 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
               </div>
               <div>
                 <Text as="p" fontWeight="bold" tone="text-inverse">
-                  Boko Influencer Program
+                  Influencer Rewards by Boko program
                 </Text>
                 <Text as="p" tone="text-inverse" variant="bodySm">
                   {influencers.length} total influencer{influencers.length === 1 ? "" : "s"} &middot;{" "}
@@ -135,7 +135,7 @@ export default function InfluencerManagement({ influencers }: { influencers: Inf
                 </Text>
               </div>
             </div>
-            <HowToUse title="How to use this page">Manage everyone in your program here. Click Add influencer to create one manually, or approve applicants who registered through your public sign-up link (they show as Pending). Set a person status to Approved to activate their account and referral link. Use the table to edit details, view their referral code, and change status. Rejected or Disabled influencers keep their history but cannot earn new commissions.</HowToUse>
+            <HowToUse title="How to use Influencers"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li></ul></HowToUse>
 
             <Card padding="0">
             {influencers.length === 0 ? (

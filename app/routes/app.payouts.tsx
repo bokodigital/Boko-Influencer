@@ -175,7 +175,7 @@ export default function AppPayouts() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Payouts" subtitle="Review and process influencer payouts." />
-            <HowToUse title="How to use this page">Pay your influencers their approved commissions here. Create a payout for an influencer, then send it. If the influencer has connected PayPal you can Send via PayPal, and once they finish Stripe onboarding you can Send via Stripe. Mark a payout Completed once paid to move its commissions to Paid. Add your PayPal or Stripe API keys in the app secrets before sending live payouts.</HowToUse>
+            <HowToUse title="How to use Payouts"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Create a payout for an influencer, then send it.</li><li>Use Send via PayPal if the influencer added a PayPal email.</li><li>Use Send via Stripe once the influencer finishes Stripe onboarding.</li><li>Mark a payout Completed to move its commissions to Paid.</li><li>Add PayPal or Stripe keys in the app secrets before live payouts.</li></ul></HowToUse>
 
             <Card>
               <BlockStack gap="300">
@@ -210,7 +210,7 @@ export default function AppPayouts() {
               {payouts.map((p, index) => (
                 <IndexTable.Row id={p.id} key={p.id} position={index}>
                   <IndexTable.Cell>{p.influencerName}</IndexTable.Cell>
-                  <IndexTable.Cell>{p.currency} {p.amount}</IndexTable.Cell>
+                  <IndexTable.Cell>{p.currency} {Number(p.amount).toFixed(2)}</IndexTable.Cell>
                   <IndexTable.Cell>{p.method}</IndexTable.Cell>
                   <IndexTable.Cell>
                     <Badge tone={STATUS_TONE[p.status] ?? "info"}>{p.status}</Badge>

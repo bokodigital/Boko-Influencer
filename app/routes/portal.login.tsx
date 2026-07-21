@@ -35,10 +35,9 @@ export default function PortalLogin() {
     <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
       <div style={{ background: "#FFFFFF", padding: "2.5rem", borderRadius: "12px", width: "100%", maxWidth: "420px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
-          <div style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          </div>
+          
           <div>
-            <div style={{ fontWeight: 700, fontSize: "18px" }}>Boko Influencer Portal</div>
+            <div style={{ fontWeight: 700, fontSize: "18px" }}>Influencer Rewards by Boko</div>
             <div style={{ fontSize: "13px", color: "#000000" }}>Sign in to view your dashboard</div>
           </div>
         </div>
@@ -73,6 +72,7 @@ export default function PortalLogin() {
             )}
           </div>
         )}
+        <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Not an influencer yet? </span><a href="/portal/register" style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to become an influencer</a></div>
       </div>
     </div>
   );

@@ -48,9 +48,7 @@ export default function HowToUse({
           id={id}
           transition={{ duration: "150ms", timingFunction: "ease-in-out" }}
         >
-          <Text as="p" tone="subdued">
-            {children}
-          </Text>
+          <div style={{ fontSize: "14px", color: "#616161" }}>{children}</div>
         </Collapsible>
       </BlockStack>
     </Card>

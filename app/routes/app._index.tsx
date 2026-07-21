@@ -36,7 +36,7 @@ export default function AppIndex() {
   ];
 
   return (
-    <Page title="Boko Influencer">
+    <Page>
       <Layout>
         <Layout.Section>
           <BlockStack gap="600">
@@ -44,7 +44,7 @@ export default function AppIndex() {
               title="Influencer marketing dashboard"
               subtitle="Track referrals, approve influencers, and manage commission payouts."
             />
-            <HowToUse title="How to use this dashboard">This is your influencer marketing hub. Use the left navigation to run each part of the program. Influencers: add people manually or approve applicants who signed up through your public registration link (they appear as Pending). Commissions: review and approve the commission earned on each referred order. Payouts: pay approved commissions through PayPal or Stripe. Discounts: create the referral codes influencers share. Rewards: set milestone bonuses. Typical flow: approve an influencer, share their referral link and code, then approve their commissions and pay them out.</HowToUse>
+            <HowToUse title="How to use the dashboard"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Influencers: add people manually or approve applicants who registered through your public link (they show as Pending).</li><li>Commissions: review and approve the commission earned on each referred order.</li><li>Payouts: pay approved commissions via PayPal or Stripe.</li><li>Discounts: create the referral codes influencers share.</li><li>Rewards: set milestone bonuses that unlock automatically.</li><li>Typical flow: approve an influencer, share their referral link, then approve and pay their commissions.</li></ul></HowToUse>
             <InlineGrid columns={4} gap="400">
               {stats.map((s) => (
                 <Card key={s.label}>

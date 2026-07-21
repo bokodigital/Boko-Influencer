@@ -134,7 +134,7 @@ export default function AppCommissions() {
       <IndexTable.Cell>{c.influencerName}</IndexTable.Cell>
       <IndexTable.Cell>#{c.orderId}</IndexTable.Cell>
       <IndexTable.Cell>
-        {c.currency} {c.amount}
+        {c.currency} {Number(c.amount).toFixed(2)}
       </IndexTable.Cell>
       <IndexTable.Cell>
         <InlineStack gap="200" blockAlign="center"><Badge tone={STATUS_TONE[c.status] ?? "info"}>{c.status}</Badge>{c.status === "pending" && (<approveOneFetcher.Form method="post"><input type="hidden" name="intent" value="approve_commission" /><input type="hidden" name="commissionId" value={c.id} /><Button submit size="slim" variant="primary">Approve</Button></approveOneFetcher.Form>)}</InlineStack>
@@ -148,7 +148,7 @@ export default function AppCommissions() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Commissions" subtitle="Track influencer earnings and approval status." />
-            <HowToUse title="How to use this page">Every order placed with an influencer referral code creates a commission here, starting as Pending. Review each one and click Approve to confirm it, or leave it pending during your refund window. Approved commissions become payable and appear on the Payouts page. Amounts are calculated automatically from each influencer commission rate.</HowToUse>
+            <HowToUse title="How to use Commissions"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Each order using a referral code creates a commission, starting as Pending.</li><li>Click Approve to confirm a commission, or wait out your refund window.</li><li>Approved commissions become payable and appear on the Payouts page.</li><li>Amounts are calculated automatically from each influencer commission rate.</li></ul></HowToUse>
             <Card>
               <BlockStack gap="300">
                 <InlineStack align="space-between">

@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { href: "/portal/commissions", label: "Commissions" },
   { href: "/portal/rewards", label: "Rewards" },
   { href: "/portal/payouts", label: "Payouts" },
-  { href: "/portal/bank-details", label: "Bank Details" },
+  { href: "/portal/bank-details", label: "Payout Details" },
 ];
 
 export default function PortalShell({ influencerName, children }: { influencerName: string; children: ReactNode }) {
@@ -16,7 +16,7 @@ export default function PortalShell({ influencerName, children }: { influencerNa
     <div style={{ minHeight: "100vh", background: "#F8F9FC", fontFamily: "Poppins, sans-serif" }}>
       <div style={{ background: "#000000", color: "#FFFFFF", padding: "1rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ fontWeight: 700 }}>Boko Influencer Portal</div>
+          <div style={{ fontWeight: 700 }}>Influencer Rewards by Boko</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span style={{ fontSize: "13px", opacity: 0.8 }}>{influencerName}</span>

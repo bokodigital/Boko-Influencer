@@ -341,7 +341,7 @@ export default function EmailSettings() {
       </div>
       <Layout>
         <Layout.Section>
-          <HowToUse title="How to use this page">Manage the automated emails sent to influencers here. Preview each template to see how it looks to recipients. These lifecycle emails cover moments such as approval, commission earned, and payout sent, and are delivered through your connected Klaviyo account.</HowToUse>
+          <HowToUse title="How to use Email settings"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Preview each template to see how it looks to recipients.</li><li>Templates cover approval, commission earned, and payout sent.</li><li>Emails are delivered through your connected Klaviyo account.</li></ul></HowToUse>
         </Layout.Section>
       </Layout>
       <Layout>

@@ -55,7 +55,7 @@ export default function PortalCommissions() {
             {commissions.map((c) => (
               <tr key={c.id} style={{ borderTop: "1px solid #000000" }}>
                 <td style={{ padding: "12px 16px" }}>{c.orderTotal ? `$${c.orderTotal} AUD` : "—"}</td>
-                <td style={{ padding: "12px 16px", fontWeight: 600 }}>${c.amount} AUD</td>
+                <td style={{ padding: "12px 16px", fontWeight: 600 }}>${Number(c.amount).toFixed(2)} AUD</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{ background: STATUS_STYLE[c.status]?.bg ?? "#F8F9FC", color: STATUS_STYLE[c.status]?.color ?? "#000000", fontWeight: 600, textTransform: "capitalize", padding: "4px 10px", borderRadius: "999px", fontSize: "12px", display: "inline-block" }}>{c.status}</span>
                 </td>

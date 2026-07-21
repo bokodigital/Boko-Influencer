@@ -19,7 +19,7 @@ export default function Index() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem" }}>
-      <h1>Boko Influencer</h1>
+      <h1>Influencer Rewards by Boko</h1>
       <p>Shopify influencer marketing app. Install it from your store admin.</p>
       {showForm && (
         <form method="post" action="/auth/login">

@@ -52,7 +52,7 @@ export default function PortalPayouts() {
           <tbody>
             {payouts.map((p) => (
               <tr key={p.id} style={{ borderTop: "1px solid #000000" }}>
-                <td style={{ padding: "12px 16px", fontWeight: 600 }}>{p.currency} {p.amount}</td>
+                <td style={{ padding: "12px 16px", fontWeight: 600 }}>{p.currency} {Number(p.amount).toFixed(2)}</td>
                 <td style={{ padding: "12px 16px", textTransform: "capitalize" }}>{p.method.replace("_", " ")}</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{ background: STATUS_STYLE[p.status]?.bg ?? "#F8F9FC", color: STATUS_STYLE[p.status]?.color ?? "#000000", fontWeight: 600, textTransform: "capitalize", padding: "4px 10px", borderRadius: "999px", fontSize: "12px", display: "inline-block" }}>{p.status}</span>
