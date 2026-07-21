@@ -79,7 +79,7 @@ export default function Register() {
 
   if (actionData && "ok" in actionData && actionData.ok) {
     return (
-      <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem", fontFamily: "Helvetica, Arial, sans-serif" }}>
+      <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem", fontFamily: "Poppins, sans-serif" }}>
         <div style={{ background: "#fff", borderRadius: "12px", padding: "2rem", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", textAlign: "center" }}>
           <h1 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "0.75rem" }}>Application received</h1>
           <p style={{ fontSize: "14px", lineHeight: 1.6 }}>Thanks for applying. Our team will review your application and email you an access link once you are approved.</p>
@@ -89,7 +89,8 @@ export default function Register() {
   }
 
   return (
-    <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem", fontFamily: "Helvetica, Arial, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#F8F9FC", padding: "3rem 1rem", fontFamily: "Poppins, sans-serif" }}>
+      <div style={{ maxWidth: "520px", margin: "0 auto", background: "#FFFFFF", borderRadius: "12px", padding: "2.5rem", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
       <h1 style={{ fontSize: "26px", fontWeight: 700, marginBottom: "0.5rem" }}>Become an Influencer</h1>
       <p style={{ fontSize: "14px", color: "#000000", marginBottom: "1.5rem" }}>Apply to join our influencer program. We review every application and send you portal access once approved.</p>
       {actionData && "error" in actionData && actionData.error ? (
@@ -120,5 +121,6 @@ export default function Register() {
         </button>
       </Form>
     </div>
+      </div>
   );
 }

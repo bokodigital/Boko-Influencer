@@ -39,6 +39,7 @@ type Influencer = {
 export default function InfluencerManagement({ influencers, registerUrl }: { influencers: Influencer[]; registerUrl: string }) {
   const createFetcher = useFetcher<{ ok?: boolean; error?: string }>();
   const statusFetcher = useFetcher();
+  const deleteFetcher = useFetcher();
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", referralCode: "" });
 
@@ -55,6 +56,14 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
     statusFetcher.submit(
       { influencerId, status },
       { method: "post", action: "/api/admin/influencers/status" }
+    );
+  };
+
+  const deleteInfluencer = (influencerId: string, name: string) => {
+    if (!window.confirm("Permanently delete " + name + " and ALL their data (referrals, clicks, orders, commissions, rewards, payouts, bank details)? This cannot be undone.")) return;
+    deleteFetcher.submit(
+      { influencerId },
+      { method: "post", action: "/api/admin/influencers/delete" }
     );
   };
 
@@ -87,6 +96,7 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
               Disable
             </Button>
           )}
+            <Button size="slim" tone="critical" onClick={() => deleteInfluencer(inf.id, inf.firstName + " " + inf.lastName)}>Delete permanently</Button>
         </InlineStack>
       </IndexTable.Cell>
     </IndexTable.Row>
@@ -123,7 +133,7 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
                 </Text>
               </div>
             </div>
-            <HowToUse title="Instructions for the Influencer module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li></ul></HowToUse>
+            <HowToUse title="Instructions for the Influencer module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li><li><strong>Delete permanently</strong> removes an influencer and ALL their data (referrals, clicks, orders, commissions, rewards, payouts and bank details). This cannot be undone.</li></ul></HowToUse>
         <Card>
           <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>Your influencer sign-up link</div>
           <div style={{ fontSize: "13px", color: "#616161", marginBottom: "8px" }}>Share this link with influencers so they can apply. Applications appear below as Pending for you to approve.</div>
