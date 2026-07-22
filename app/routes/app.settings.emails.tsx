@@ -215,13 +215,23 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "save_branding") {
-    const logoUrl = String(formData.get("logoUrl") || "").trim();
+    let logoUrl = String(formData.get("logoUrl") || "").trim();
     const buttonColor = String(formData.get("buttonColor") || "").trim();
     const headingColor = String(formData.get("headingColor") || "").trim();
+    const logoFile = formData.get("logoFile");
+    let logoImage: Buffer | undefined;
+    let logoMime: string | undefined;
+    if (logoFile && typeof logoFile === "object" && "arrayBuffer" in logoFile && (logoFile as File).size > 0) {
+      const f = logoFile as File;
+      logoImage = Buffer.from(await f.arrayBuffer());
+      logoMime = f.type || "image/png";
+      logoUrl = (process.env.SHOPIFY_APP_URL || "") + "/branding/logo/" + encodeURIComponent(shop) + "?v=" + Date.now();
+    }
+    const imgData = logoImage ? { logoImage, logoMime: logoMime || null } : {};
     await prisma.shopSettings.upsert({
       where: { shop },
-      update: { logoUrl: logoUrl || null, buttonColor: buttonColor || null, headingColor: headingColor || null },
-      create: { shop, logoUrl: logoUrl || null, buttonColor: buttonColor || null, headingColor: headingColor || null },
+      update: { logoUrl: logoUrl || null, buttonColor: buttonColor || null, headingColor: headingColor || null, ...imgData },
+      create: { shop, logoUrl: logoUrl || null, buttonColor: buttonColor || null, headingColor: headingColor || null, ...imgData },
     });
     return json({ ok: true });
   }
@@ -418,8 +428,12 @@ export default function EmailSettings() {
           <Card>
             <BlockStack gap="400">
               <Text as="h2" variant="headingMd">Branding</Text>
-              <brandingFetcher.Form method="post">
+              <brandingFetcher.Form method="post" encType="multipart/form-data">
                 <input type="hidden" name="intent" value="save_branding" />
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 13, fontWeight: 500, display: "block", marginBottom: 4 }}>Or upload a logo image (PNG/JPG)</label>
+                <input type="file" name="logoFile" accept="image/*" />
+              </div>
                 <BlockStack gap="300">
                   <TextField
                     label="Logo"

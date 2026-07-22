@@ -283,6 +283,8 @@ model ShopSettings {
   senderName             String?
   senderEmail            String?
   logoUrl                String?
+  logoImage              Bytes?
+  logoMime               String?
   buttonColor            String?
   headingColor           String?
   createdAt              DateTime @default(now())
