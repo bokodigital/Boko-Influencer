@@ -14,7 +14,16 @@ export default async function handleRequest(
   remixContext: EntryContext,
   _loadContext: AppLoadContext
 ) {
-  addDocumentResponseHeaders(request, responseHeaders);
+  // The influencer sign-up form is designed to be embedded on a merchant's own
+  // website via an <iframe>, so it must NOT receive Shopify's frame-ancestors
+  // CSP (which restricts framing to the Shopify admin). Apply Shopify's document
+  // headers everywhere except the embeddable registration route.
+  const pathname = new URL(request.url).pathname;
+  const isEmbeddableRegistration = pathname.startsWith("/portal/register");
+  if (!isEmbeddableRegistration) {
+    addDocumentResponseHeaders(request, responseHeaders);
+  }
+
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";
 
