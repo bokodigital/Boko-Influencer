@@ -31,7 +31,7 @@ args = "npm run dev"
 [deployment]
 deploymentTarget = "autoscale"
 run = ["npm", "run", "start"]
-build = ["npm", "run", "build"]
+build = ["sh", "-c", "npx prisma db push && npm run build"]
 
 [userenv]
 
