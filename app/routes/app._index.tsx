@@ -71,6 +71,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   });
 
+  let commissionsEnabled = true;
+  try {
+    const s = await prisma.shopSettings.findUnique({ where: { shop }, select: { moduleCommissions: true } });
+    if (s) commissionsEnabled = s.moduleCommissions;
+  } catch (error) {
+    console.error("Failed to load module settings", error);
+  }
+
   return json({
     influencerCount,
     pendingCount,
@@ -80,6 +88,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     revenueTotal: Number(orderAgg._sum.orderTotal || 0),
     owedTotal: Number(commissionAgg._sum.amount || 0),
     paidTotal: Number(payoutAgg._sum.amount || 0),
+    commissionsEnabled,
     rows,
   });
 }
@@ -98,6 +107,7 @@ export default function AppIndex() {
     revenueTotal,
     owedTotal,
     paidTotal,
+    commissionsEnabled,
     rows,
   } = useLoaderData<typeof loader>();
 
@@ -108,7 +118,7 @@ export default function AppIndex() {
     { label: "Revenue", value: money(revenueTotal) },
     { label: "Active influencers", value: String(activeCount) },
     { label: "Total influencers", value: String(influencerCount), caption: pendingCount + " pending review" },
-    { label: "Owed in commissions", value: money(owedTotal) },
+    ...(commissionsEnabled ? [{ label: "Owed in commissions", value: money(owedTotal) }] : []),
     { label: "Paid out", value: money(paidTotal) },
   ];
 
@@ -152,16 +162,26 @@ export default function AppIndex() {
                   </Text>
                 ) : (
                   <DataTable
-                    columnContentTypes={["text", "text", "numeric", "numeric", "numeric", "numeric"]}
-                    headings={["Influencer", "Code", "Clicks", "Purchases", "Revenue", "Owed"]}
-                    rows={rows.map((r) => [
-                      <Link key={r.id} to={`/app/influencers/${r.id}`}>{r.name}</Link>,
-                      r.code,
-                      r.clicks,
-                      r.purchases,
-                      money(r.revenue),
-                      money(r.owed),
-                    ])}
+                    columnContentTypes={
+                      commissionsEnabled
+                        ? ["text", "text", "numeric", "numeric", "numeric", "numeric"]
+                        : ["text", "text", "numeric", "numeric", "numeric"]
+                    }
+                    headings={
+                      commissionsEnabled
+                        ? ["Influencer", "Code", "Clicks", "Purchases", "Revenue", "Owed"]
+                        : ["Influencer", "Code", "Clicks", "Purchases", "Revenue"]
+                    }
+                    rows={rows.map((r) => {
+                      const base = [
+                        <Link key={r.id} to={`/app/influencers/${r.id}`}>{r.name}</Link>,
+                        r.code,
+                        r.clicks,
+                        r.purchases,
+                        money(r.revenue),
+                      ];
+                      return commissionsEnabled ? [...base, money(r.owed)] : base;
+                    })}
                   />
                 )}
               </BlockStack>
