@@ -14,6 +14,7 @@ export default function PortalShell({ influencerName, children }: { influencerNa
     { href: "/portal/rewards", label: "Rewards", show: modules.rewards },
     { href: "/portal/payouts", label: "Payouts", show: modules.payouts },
     { href: "/portal/bank-details", label: "Payout details", show: modules.payouts },
+    { href: "/portal/profile", label: "My profile", show: true },
   ].filter((item) => item.show);
 
   return (
