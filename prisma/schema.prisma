@@ -291,6 +291,10 @@ model ShopSettings {
   logoMime               String?
   buttonColor            String?
   headingColor           String?
+  moduleCommissions      Boolean  @default(true)
+  modulePayouts          Boolean  @default(true)
+  moduleDiscounts        Boolean  @default(true)
+  moduleRewards          Boolean  @default(true)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }
