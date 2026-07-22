@@ -23,6 +23,14 @@ export const KLAVIYO_EVENTS = [
 
 export type KlaviyoEvent = (typeof KLAVIYO_EVENTS)[number];
 
+// Admin-facing notifications — these are sent to the store's admin notification
+// address (Settings > Emails), NOT to influencers. They never push to Klaviyo.
+export const ADMIN_EVENTS = [
+  "New Influencer Application",
+] as const;
+
+export type AdminEvent = (typeof ADMIN_EVENTS)[number];
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 // Primary sender address — comes from the SMTP_FROM env var (e.g. admin@boko.com.au).
 // Falls back to SMTP_USER, then a generic placeholder if neither is set.
@@ -69,6 +77,13 @@ export const DEFAULT_TEMPLATES: Record<KlaviyoEvent, { subject: string; body: st
   "New Order via Referral": {
     subject: "Someone just shopped using your link",
     body: "Hi {{first_name}},\n\nA customer just placed an order using your referral code {{referral_code}}. We're calculating your commission now.",
+  },
+};
+
+export const DEFAULT_ADMIN_TEMPLATES: Record<AdminEvent, { subject: string; body: string }> = {
+  "New Influencer Application": {
+    subject: "New influencer application: {{applicant_name}}",
+    body: "A new influencer has applied to join your program.\n\nName: {{applicant_name}}\nEmail: {{applicant_email}}\nInstagram: {{instagram}}\nAudience size: {{audience}}\n\nReview and approve them from the Influencers page in your admin dashboard.",
   },
 };
 
@@ -329,6 +344,44 @@ export async function notify(
       data: { status: "failed" },
     });
     console.error(`[notify] failed to send notification for event "${event}", influencer ${influencerId}:`, err);
+  }
+}
+
+// Sends an admin-facing notification to the store's admin notification address.
+// The recipient is stored in ShopSettings.senderEmail (surfaced in the UI as
+// "Admin notification email"). If no admin email is configured, this is a no-op.
+// Admin notifications always use the built-in email transport (never Klaviyo).
+export async function notifyAdmin(
+  shop: string,
+  event: AdminEvent,
+  properties: Record<string, unknown> = {},
+) {
+  const settings = await prisma.shopSettings.findUnique({
+    where: { shop },
+    select: { senderEmail: true, senderName: true, logoUrl: true, headingColor: true, buttonColor: true },
+  });
+
+  const to = settings?.senderEmail?.trim();
+  if (!to) return; // no admin notification email configured
+
+  const custom = await prisma.emailTemplate.findUnique({ where: { shop_event: { shop, event } } });
+  if (custom && !custom.enabled) return; // admin turned this notification off
+
+  const template = custom ?? DEFAULT_ADMIN_TEMPLATES[event];
+  const subject = renderTemplate(template.subject, properties);
+  const body = normalizeBodyHtml(renderTemplate(template.body, properties));
+  const html = applyBranding(body, {
+    logoUrl: settings?.logoUrl,
+    headingColor: settings?.headingColor,
+    buttonColor: settings?.buttonColor,
+    shopName: settings?.senderName,
+  });
+  const from = shopSenderFrom(settings?.senderName);
+
+  try {
+    await deliverEmail(to, subject, html, from);
+  } catch (err) {
+    console.error(`[notifyAdmin] failed to send admin notification for "${event}":`, err);
   }
 }
 
