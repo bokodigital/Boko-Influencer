@@ -43,6 +43,8 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", referralCode: "" });
 
+  const embedCode = `<iframe src="${registerUrl}" title="Join our influencer program" style="width:100%;max-width:600px;height:1000px;border:0;"></iframe>`;
+
   const closeModal = useCallback(() => setModalOpen(false), []);
 
   useEffect(() => {
@@ -121,7 +123,7 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
                 borderRadius: "8px",
               }}
             >
-              
+
               <div>
                 <Text as="p" fontWeight="bold" tone="text-inverse">
                   Influencer Rewards by Boko program
@@ -133,11 +135,15 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
                 </Text>
               </div>
             </div>
-            <HowToUse title="Instructions for the Influencer module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li>Approve applicants who registered through your public link (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li><li><strong>Delete permanently</strong> removes an influencer and ALL their data (referrals, clicks, orders, commissions, rewards, payouts and bank details). This cannot be undone.</li></ul></HowToUse>
+            <HowToUse title="Instructions for the Influencer module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Click Add influencer to create one manually.</li><li><strong>Let influencers sign up themselves:</strong> share your sign-up link, or embed the sign-up form directly on your website using the embed code below.</li><li>Approve applicants who registered through your link or embedded form (they show as Pending).</li><li>Set status to Approved to activate their account and referral link.</li><li>Use the table to edit details, view the referral code, or change status.</li><li>Rejected or Disabled influencers keep their history but cannot earn new commissions.</li><li><strong>Delete permanently</strong> removes an influencer and ALL their data (referrals, clicks, orders, commissions, rewards, payouts and bank details). This cannot be undone.</li></ul></HowToUse>
         <Card>
           <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>Your influencer sign-up link</div>
           <div style={{ fontSize: "13px", color: "#616161", marginBottom: "8px" }}>Share this link with influencers so they can apply. Applications appear below as Pending for you to approve.</div>
           <div style={{ fontSize: "13px", background: "#F1F1F1", padding: "8px 10px", borderRadius: "6px", wordBreak: "break-all", fontFamily: "monospace" }}>{registerUrl}</div>
+
+          <div style={{ fontWeight: 600, fontSize: "14px", margin: "18px 0 4px" }}>Embed the sign-up form on your website</div>
+          <div style={{ fontSize: "13px", color: "#616161", marginBottom: "8px" }}>Paste this code into any page of your website (or your Shopify theme via a Custom Liquid / HTML block) to show the application form inline. Submissions appear below as Pending.</div>
+          <div style={{ fontSize: "12px", background: "#F1F1F1", padding: "10px 12px", borderRadius: "6px", wordBreak: "break-all", whiteSpace: "pre-wrap", fontFamily: "monospace" }}>{embedCode}</div>
         </Card>
 
             <Card padding="0">
