@@ -295,6 +295,9 @@ model ShopSettings {
   modulePayouts          Boolean  @default(true)
   moduleDiscounts        Boolean  @default(true)
   moduleRewards          Boolean  @default(true)
+  dashboardLogoUrl       String?
+  dashboardLogoImage     Bytes?
+  dashboardLogoMime      String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }
