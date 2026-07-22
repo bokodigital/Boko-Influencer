@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import { Page, Layout, Card, Text, BlockStack, InlineGrid, DataTable } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
@@ -155,7 +155,7 @@ export default function AppIndex() {
                     columnContentTypes={["text", "text", "numeric", "numeric", "numeric", "numeric"]}
                     headings={["Influencer", "Code", "Clicks", "Purchases", "Revenue", "Owed"]}
                     rows={rows.map((r) => [
-                      r.name,
+                      <Link key={r.id} to={`/app/influencers/${r.id}`}>{r.name}</Link>,
                       r.code,
                       r.clicks,
                       r.purchases,
