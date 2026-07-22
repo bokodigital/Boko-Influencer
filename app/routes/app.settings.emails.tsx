@@ -23,7 +23,7 @@ import Link from "@tiptap/extension-link";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import { encryptValue, maskAccountNumber } from "../lib/crypto.server";
-import { KLAVIYO_EVENTS, DEFAULT_TEMPLATES } from "../lib/klaviyo.server";
+import { KLAVIYO_EVENTS, DEFAULT_TEMPLATES, ADMIN_EVENTS, DEFAULT_ADMIN_TEMPLATES } from "../lib/klaviyo.server";
 import BokoBanner from "../components/admin/BokoBanner";
 import HowToUse from "../components/admin/HowToUse";
 
@@ -169,14 +169,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   });
 
+  const adminEvents = ADMIN_EVENTS.map((event) => {
+    const custom = templateByEvent.get(event);
+    const fallback = DEFAULT_ADMIN_TEMPLATES[event];
+    return {
+      event,
+      subject: custom?.subject ?? fallback.subject,
+      body: custom?.body ?? fallback.body,
+      enabled: custom?.enabled ?? true,
+      isCustom: Boolean(custom),
+    };
+  });
+
   return json({
     hasKlaviyo: Boolean(settings?.klaviyoApiKeyEncrypted),
     maskedKey: settings?.klaviyoApiKeyEncrypted ? maskAccountNumber("klaviyo-connected-key") : null,
     senderName: settings?.senderName ?? "",
+    adminEmail: settings?.senderEmail ?? "",
     logoUrl: settings?.logoUrl ?? "",
     buttonColor: settings?.buttonColor ?? "#000000",
     headingColor: settings?.headingColor ?? "#000000",
     events,
+    adminEvents,
   });
 }
 
@@ -210,6 +224,16 @@ export async function action({ request }: ActionFunctionArgs) {
       where: { shop },
       update: { senderName: senderName || null },
       create: { shop, senderName: senderName || null },
+    });
+    return json({ ok: true });
+  }
+
+  if (intent === "save_admin_email") {
+    const adminEmail = String(formData.get("adminEmail") || "").trim();
+    await prisma.shopSettings.upsert({
+      where: { shop },
+      update: { senderEmail: adminEmail || null },
+      create: { shop, senderEmail: adminEmail || null },
     });
     return json({ ok: true });
   }
@@ -282,7 +306,7 @@ function TemplateCard({ item }: { item: ReturnType<typeof useLoaderData<typeof l
             <RichTextEditor initialContent={item.body} onChange={setBody} />
           </BlockStack>
           <Text as="p" tone="subdued" variant="bodySm">
-            Merge tags: {"{{first_name}} {{amount}} {{code}} {{referral_code}} {{order_id}} {{link}} {{method}} {{reward_title}} {{reward_type}} {{portal_login_url}}"}
+            Merge tags: {"{{first_name}} {{amount}} {{code}} {{referral_code}} {{order_id}} {{link}} {{method}} {{reward_title}} {{reward_type}} {{portal_login_url}} {{applicant_name}} {{applicant_email}} {{instagram}} {{audience}}"}
           </Text>
           <InlineStack align="end" gap="200">
             <Button onClick={handlePreview} loading={previewFetcher.state === "loading"}>
@@ -333,10 +357,12 @@ export default function EmailSettings() {
   const data = useLoaderData<typeof loader>();
   const klaviyoFetcher = useFetcher<{ ok?: boolean }>();
   const senderFetcher = useFetcher<{ ok?: boolean }>();
+  const adminEmailFetcher = useFetcher<{ ok?: boolean }>();
   const brandingFetcher = useFetcher<{ ok?: boolean }>();
   const [hasKlaviyo, setHasKlaviyo] = useState(data.hasKlaviyo);
   const [apiKey, setApiKey] = useState("");
   const [senderName, setSenderName] = useState(data.senderName);
+  const [adminEmail, setAdminEmail] = useState(data.adminEmail);
   const [logoUrl, setLogoUrl] = useState(data.logoUrl);
   const [buttonColor, setButtonColor] = useState(data.buttonColor);
   const [headingColor, setHeadingColor] = useState(data.headingColor);
@@ -351,7 +377,7 @@ export default function EmailSettings() {
       </div>
       <Layout>
         <Layout.Section>
-          <HowToUse title="Instructions for the Email settings module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Preview each template to see how it looks to recipients.</li><li>Templates cover approval, commission earned, and payout sent.</li><li>Emails are delivered through your connected Klaviyo account.</li></ul></HowToUse>
+          <HowToUse title="Instructions for the Email settings module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Set an admin notification email to be alerted when a new influencer applies.</li><li>Preview each template to see how it looks to recipients.</li><li>Admin-facing emails go to you; influencer-facing emails go to your influencers.</li><li>Emails are delivered through your connected Klaviyo account, or the built-in system if Klaviyo isn't connected.</li></ul></HowToUse>
         </Layout.Section>
       </Layout>
       <Layout>
@@ -391,6 +417,36 @@ export default function EmailSettings() {
                   built-in system using the templates below.
                 </Banner>
               )}
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">Admin notifications</Text>
+              <Text as="p" tone="subdued" variant="bodySm">
+                Where to send admin alerts, such as when a new influencer applies. Leave blank to turn admin emails off.
+              </Text>
+              <adminEmailFetcher.Form method="post">
+                <input type="hidden" name="intent" value="save_admin_email" />
+                <FormLayout>
+                  <TextField
+                    label="Admin notification email"
+                    type="email"
+                    autoComplete="off"
+                    name="adminEmail"
+                    value={adminEmail}
+                    onChange={setAdminEmail}
+                    placeholder="you@yourstore.com"
+                  />
+                </FormLayout>
+                <InlineStack align="end">
+                  <Button submit variant="primary" loading={adminEmailFetcher.state !== "idle"}>
+                    Save
+                  </Button>
+                </InlineStack>
+              </adminEmailFetcher.Form>
             </BlockStack>
           </Card>
         </Layout.Section>
@@ -492,7 +548,22 @@ export default function EmailSettings() {
 
         <Layout.Section>
           <BlockStack gap="300">
-            <Text as="h2" variant="headingMd">Email templates</Text>
+            <Text as="h2" variant="headingMd">Admin-facing emails</Text>
+            <Text as="p" tone="subdued" variant="bodySm">
+              Sent to your admin notification email above.
+            </Text>
+            {data.adminEvents.map((item) => (
+              <TemplateCard key={item.event} item={item} />
+            ))}
+          </BlockStack>
+        </Layout.Section>
+
+        <Layout.Section>
+          <BlockStack gap="300">
+            <Text as="h2" variant="headingMd">Influencer-facing emails</Text>
+            <Text as="p" tone="subdued" variant="bodySm">
+              Sent to your influencers for each program event.
+            </Text>
             {data.events.map((item) => (
               <TemplateCard key={item.event} item={item} />
             ))}

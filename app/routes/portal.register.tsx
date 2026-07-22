@@ -4,7 +4,7 @@ import { useActionData, useLoaderData, Form, useNavigation } from "@remix-run/re
 import { randomBytes } from "crypto";
 import { prisma } from "../lib/db.server";
 import { hashPassword } from "../lib/password.server";
-import { notify } from "../lib/klaviyo.server";
+import { notify, notifyAdmin } from "../lib/klaviyo.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -68,6 +68,14 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   try { await notify("Influencer Registered", createdInfluencer.id, {}); } catch (e) { console.error("[register] signup email failed", e); }
+  try {
+    await notifyAdmin(shop, "New Influencer Application", {
+      applicant_name: `${firstName} ${lastName}`,
+      applicant_email: email,
+      instagram: instagramHandle || "—",
+      audience: audienceSize || "—",
+    });
+  } catch (e) { console.error("[register] admin notify failed", e); }
   return json({ ok: true });
 }
 
