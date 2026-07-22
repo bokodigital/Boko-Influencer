@@ -1,5 +1,6 @@
 import { json } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { CSSProperties } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { requirePortalInfluencer } from "../lib/portal-auth.server";
 import { prisma } from "../lib/db.server";
@@ -23,11 +24,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     commissionByStatus[row.status] = Number(row._sum.amount ?? 0);
   }
 
-  const shopDomain = influencer.shop ?? "your-store.myshopify.com";
   const referralLink = `${process.env.SHOPIFY_APP_URL ?? "https://boko-influencer.replit.app"}/r/${influencer.referralCode}`;
 
   return json({
     influencerName: `${influencer.firstName} ${influencer.lastName}`,
+    firstName: influencer.firstName,
     referralCode: influencer.referralCode,
     referralLink,
     clicks,
@@ -40,48 +41,85 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
+const cardStyle: CSSProperties = {
+  background: "#FFFFFF",
+  border: "1px solid #ECECEC",
+  borderRadius: "16px",
+  padding: "1.25rem 1.5rem",
+};
+
+const sectionHeading: CSSProperties = {
+  fontSize: "18px",
+  fontWeight: 500,
+  textTransform: "uppercase",
+  letterSpacing: "0.01em",
+  margin: "0 0 1rem",
+  color: "#000000",
+};
+
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ background: "#fff", borderRadius: "10px", padding: "1.25rem", flex: 1, minWidth: "160px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-      <div style={{ fontSize: "12px", color: "#000000", marginBottom: "6px" }}>{label}</div>
-      <div style={{ fontSize: "22px", fontWeight: 700 }}>{value}</div>
+    <div style={{ ...cardStyle, flex: 1, minWidth: "180px" }}>
+      <div style={{ fontSize: "13px", color: "#6B6B6B", marginBottom: "8px" }}>{label}</div>
+      <div style={{ fontSize: "26px", fontWeight: 700, color: "#000000" }}>{value}</div>
     </div>
   );
 }
 
 export default function PortalOverview() {
   const data = useLoaderData<typeof loader>();
+  const showSummary = data.commissionsEnabled || data.payoutsEnabled;
 
   return (
     <PortalShell influencerName={data.influencerName}>
       {data.logoUrl ? (
-        <div style={{ marginBottom: "1.25rem" }}>
+        <div style={{ marginBottom: "1.5rem" }}>
           <img
             src={data.logoUrl}
             alt="Store logo"
-            style={{ maxHeight: "56px", maxWidth: "220px", objectFit: "contain", display: "block" }}
+            style={{ maxHeight: "48px", maxWidth: "200px", objectFit: "contain", display: "block" }}
           />
         </div>
       ) : null}
-      <h1 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "0.25rem" }}>Welcome back, {data.influencerName.split(" ")[0]}</h1>
-        <div style={{ background: "#000000", color: "#FFFFFF", borderRadius: "12px", padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}><div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#BFFC00", marginBottom: "6px" }}>Your influencer dashboard</div><div style={{ fontSize: "14px", lineHeight: 1.6 }}>Share your referral code to start earning. Every click, order and commission you generate is tracked below in real time. Approved commissions are paid to your chosen payout method.</div></div>
-      <p style={{ color: "#000000", marginBottom: "1.5rem" }}>Here's how your referrals are performing.</p>
 
-      <div style={{ background: "#000", color: "#fff", borderRadius: "10px", padding: "1.25rem", marginBottom: "1.5rem" }}>
-        <div style={{ fontSize: "12px", color: "#BFFC00", marginBottom: "4px" }}>Your referral code</div>
-        <div style={{ fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>{data.referralCode}</div>
-        <div style={{ fontSize: "13px", opacity: 0.8, wordBreak: "break-all" }}>{data.referralLink}</div>
+      <h1 style={{ fontSize: "32px", fontWeight: 700, margin: "0 0 0.5rem", color: "#000000" }}>
+        Welcome back, {data.firstName}
+      </h1>
+      <p style={{ fontSize: "14px", color: "#272727", margin: "0 0 2rem", lineHeight: 1.6, maxWidth: "560px" }}>
+        Share your code to start earning. Every click and order you generate is tracked here in real time.
+      </p>
+
+      {/* Referral code — single dark band */}
+      <div style={{ background: "#000000", color: "#FFFFFF", borderRadius: "18px", padding: "1.75rem", marginBottom: "2rem" }}>
+        <div style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#CFCFCF", marginBottom: "8px" }}>
+          Your code
+        </div>
+        <div style={{ fontSize: "28px", fontWeight: 700, letterSpacing: "0.02em", marginBottom: "10px" }}>
+          {data.referralCode}
+        </div>
+        <div style={{ fontSize: "13px", color: "#BDBDBD", wordBreak: "break-all" }}>{data.referralLink}</div>
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+      {/* How to use */}
+      <div style={{ ...cardStyle, marginBottom: "2rem" }}>
+        <h2 style={sectionHeading}>How to use your code</h2>
+        <ol style={{ margin: 0, paddingLeft: "1.25rem", color: "#272727", fontSize: "14px", lineHeight: 1.9 }}>
+          <li><strong>Share your link.</strong> Post {data.referralLink} anywhere you like — anyone who clicks it and buys is automatically tracked to you, no code needed.</li>
+          <li><strong>Or share your code {data.referralCode}.</strong> Customers can enter it at checkout — every order placed with your code is credited to you.</li>
+          <li><strong>Watch it add up.</strong> Your clicks, orders{data.commissionsEnabled ? " and commissions" : ""} update on this page in real time.</li>
+        </ol>
+      </div>
+
+      <h2 style={sectionHeading}>Your performance</h2>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: showSummary ? "2rem" : "0" }}>
         <StatCard label="Link clicks" value={String(data.clicks)} />
         <StatCard label="Orders referred" value={String(data.orders)} />
         <StatCard label="Revenue generated" value={`$${data.revenue.toFixed(2)} AUD`} />
       </div>
 
-      {(data.commissionsEnabled || data.payoutsEnabled) ? (
+      {showSummary ? (
         <>
-          <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "0.75rem" }}>Commission summary</h2>
+          <h2 style={sectionHeading}>Commission summary</h2>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             {data.commissionsEnabled ? <StatCard label="Pending" value={`$${data.commissionByStatus.pending.toFixed(2)}`} /> : null}
             {data.commissionsEnabled ? <StatCard label="Approved (owed)" value={`$${data.commissionByStatus.approved.toFixed(2)}`} /> : null}
