@@ -7,7 +7,7 @@
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "prisma db push --skip-generate; remix-serve ./build/server/index.js",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "typecheck": "tsc --noEmit"
