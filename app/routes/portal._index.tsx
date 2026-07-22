@@ -8,11 +8,14 @@ import PortalShell from "../components/portal/PortalShell";
 export async function loader({ request }: LoaderFunctionArgs) {
   const influencer = await requirePortalInfluencer(request);
 
-  const [clicks, orders, revenueAgg, commissionAgg] = await Promise.all([
+  const [clicks, orders, revenueAgg, commissionAgg, settings] = await Promise.all([
     prisma.click.count({ where: { influencerId: influencer.id } }),
     prisma.order.count({ where: { influencerId: influencer.id } }),
     prisma.order.aggregate({ where: { influencerId: influencer.id }, _sum: { orderTotal: true } }),
     prisma.commission.groupBy({ by: ["status"], where: { influencerId: influencer.id }, _sum: { amount: true } }),
+    influencer.shop
+      ? prisma.shopSettings.findUnique({ where: { shop: influencer.shop }, select: { logoUrl: true } })
+      : Promise.resolve(null),
   ]);
 
   const commissionByStatus: Record<string, number> = { pending: 0, approved: 0, paid: 0, reversed: 0 };
@@ -31,6 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     orders,
     revenue: Number(revenueAgg._sum.orderTotal ?? 0),
     commissionByStatus,
+    logoUrl: settings?.logoUrl ?? null,
   });
 }
 
@@ -48,6 +52,15 @@ export default function PortalOverview() {
 
   return (
     <PortalShell influencerName={data.influencerName}>
+      {data.logoUrl ? (
+        <div style={{ marginBottom: "1.25rem" }}>
+          <img
+            src={data.logoUrl}
+            alt="Store logo"
+            style={{ maxHeight: "56px", maxWidth: "220px", objectFit: "contain", display: "block" }}
+          />
+        </div>
+      ) : null}
       <h1 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "0.25rem" }}>Welcome back, {data.influencerName.split(" ")[0]}</h1>
         <div style={{ background: "#000000", color: "#FFFFFF", borderRadius: "12px", padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}><div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#BFFC00", marginBottom: "6px" }}>Your influencer dashboard</div><div style={{ fontSize: "14px", lineHeight: 1.6 }}>Share your referral code to start earning. Every click, order and commission you generate is tracked below in real time. Approved commissions are paid to your chosen payout method.</div></div>
       <p style={{ color: "#000000", marginBottom: "1.5rem" }}>Here's how your referrals are performing.</p>
