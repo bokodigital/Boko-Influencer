@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Page, Layout, Card, IndexTable, Badge, Text, Button, BlockStack, FormLayout, Select, TextField, InlineStack } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
-import { evaluateRewardUnlocks } from "../lib/rewards.server";
 import BokoBanner from "../components/admin/BokoBanner";
 import HowToUse from "../components/admin/HowToUse";
 
@@ -29,12 +28,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     rewards: rewards.map((r) => ({
       id: r.id,
       influencerName: `${r.influencer.firstName} ${r.influencer.lastName}`,
-      type: r.type,
       title: r.title,
-      description: r.description,
       value: r.value ? r.value.toString() : null,
       status: r.status,
       unlockCondition: r.unlockCondition,
+      discountCode: r.discountCode,
+      discountKind: r.discountKind,
+      endsAt: r.endsAt ? r.endsAt.toISOString().slice(0, 10) : null,
     })),
     influencers,
   });
@@ -46,23 +46,22 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   if (intent === "create_reward") {
+    const endsAtRaw = String(formData.get("endsAt") || "");
     await prisma.reward.create({
       data: {
         influencerId: String(formData.get("influencerId")),
-        type: String(formData.get("type")) as any,
+        type: "discount_code" as any,
         title: String(formData.get("title")),
         description: String(formData.get("description") || "") || null,
         value: formData.get("value") ? Number(formData.get("value")) : null,
         unlockCondition: String(formData.get("unlockCondition")),
         status: "locked",
+        discountCode: String(formData.get("discountCode") || "") || null,
+        discountKind: String(formData.get("discountKind") || "") || null,
+        endsAt: endsAtRaw ? new Date(endsAtRaw) : null,
       },
     });
     return json({ ok: true });
-  }
-
-  if (intent === "run_engine") {
-    const result = await evaluateRewardUnlocks();
-    return json({ ok: true, ...result });
   }
 
   if (intent === "redeem") {
@@ -89,14 +88,15 @@ const STATUS_TONE: Record<string, "success" | "attention" | "info"> = {
 export default function AppRewards() {
   const { rewards, influencers } = useLoaderData<typeof loader>();
   const createFetcher = useFetcher();
-  const engineFetcher = useFetcher<{ checked?: number; unlocked?: number }>();
   const actionFetcher = useFetcher();
 
   const [influencerId, setInfluencerId] = useState(influencers[0]?.id ?? "");
-  const [type, setType] = useState<"bonus" | "discount_code" | "store_credit" | "tier_upgrade">("discount_code");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountKind, setDiscountKind] = useState<"percentage" | "fixed">("percentage");
   const [value, setValue] = useState("");
+  const [endsAt, setEndsAt] = useState("");
   const [metric, setMetric] = useState<"referrals" | "revenue">("referrals");
   const [threshold, setThreshold] = useState("5");
 
@@ -106,24 +106,7 @@ export default function AppRewards() {
         <Layout.Section>
           <BlockStack gap="600">
             <BokoBanner title="Rewards" subtitle="Set up milestone rewards and unlock them automatically as influencers hit targets." />
-            <HowToUse title="Instructions for the Rewards module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Define a target, such as a number of referred orders or total sales.</li><li>Set the bonus an influencer unlocks when they reach it.</li><li>Rewards are evaluated automatically as orders come in.</li><li>Unlocked rewards appear on the influencer portal.</li></ul></HowToUse>
-
-            <Card>
-              <BlockStack gap="300">
-                <InlineStack align="space-between" blockAlign="center">
-                  <Text as="h2" variant="headingMd">Reward engine</Text>
-                <engineFetcher.Form method="post">
-                  <input type="hidden" name="intent" value="run_engine" />
-                  <Button submit loading={engineFetcher.state !== "idle"}>Check for unlocks</Button>
-                </engineFetcher.Form>
-              </InlineStack>
-                {engineFetcher.data && (
-                  <Text as="p">
-                    Checked {engineFetcher.data.checked} locked reward(s) — unlocked {engineFetcher.data.unlocked}.
-                  </Text>
-                )}
-              </BlockStack>
-            </Card>
+            <HowToUse title="Instructions for the Rewards module"><ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: "1.7" }}><li>Choose the influencer and give the reward a name.</li><li>Enter the discount code they will receive, its type (percentage or amount) and value.</li><li>Set an end date for the discount code.</li><li>Set the target that unlocks it, such as a number of referred orders or total sales.</li><li>When the influencer hits the target, the discount code is created automatically in Shopify, starting that day and ending on the date you set.</li></ul></HowToUse>
 
             <Card>
               <BlockStack gap="300">
@@ -140,19 +123,24 @@ export default function AppRewards() {
                       value={influencerId}
                       onChange={setInfluencerId}
                     />
+                    <TextField label="Reward name" name="title" value={title} onChange={setTitle} autoComplete="off" />
+                  </FormLayout.Group>
+                  <FormLayout.Group>
+                    <TextField label="Discount code" name="discountCode" value={discountCode} onChange={setDiscountCode} autoComplete="off" />
                     <Select
-                      label="Reward type"
-                      name="type"
+                      label="Discount type"
+                      name="discountKind"
                       options={[
-                        { label: "Discount code", value: "discount_code" },
+                        { label: "Percentage (%)", value: "percentage" },
+                        { label: "Amount (AUD)", value: "fixed" },
                       ]}
-                      value={type}
-                      onChange={(v) => setType(v as typeof type)}
+                      value={discountKind}
+                      onChange={(v) => setDiscountKind(v as typeof discountKind)}
                     />
                   </FormLayout.Group>
                   <FormLayout.Group>
-                    <TextField label="Title" name="title" value={title} onChange={setTitle} autoComplete="off" />
-                    <TextField label="Value (optional, AUD)" name="value" type="number" value={value} onChange={setValue} autoComplete="off" />
+                    <TextField label={discountKind === "percentage" ? "Discount value (%)" : "Discount value (AUD)"} name="value" type="number" value={value} onChange={setValue} autoComplete="off" />
+                    <TextField label="Discount end date" name="endsAt" type="date" value={endsAt} onChange={setEndsAt} autoComplete="off" />
                   </FormLayout.Group>
                   <TextField label="Description (optional)" name="description" value={description} onChange={setDescription} autoComplete="off" multiline={2} />
                   <FormLayout.Group>
@@ -167,7 +155,7 @@ export default function AppRewards() {
                     />
                     <TextField label="Threshold" type="number" value={threshold} onChange={setThreshold} autoComplete="off" />
                   </FormLayout.Group>
-                  <Button submit variant="primary" disabled={!influencerId || !title}>Create reward</Button>
+                  <Button submit variant="primary" disabled={!influencerId || !title || !discountCode || !value}>Create reward</Button>
                 </FormLayout>
               </createFetcher.Form>
               </BlockStack>
@@ -179,6 +167,7 @@ export default function AppRewards() {
               headings={[
                 { title: "Influencer" },
                 { title: "Reward" },
+                { title: "Discount code" },
                 { title: "Unlock condition" },
                 { title: "Status" },
                 { title: "Actions" },
@@ -188,7 +177,12 @@ export default function AppRewards() {
               {rewards.map((r, index) => (
                 <IndexTable.Row id={r.id} key={r.id} position={index}>
                   <IndexTable.Cell>{r.influencerName}</IndexTable.Cell>
-                  <IndexTable.Cell>{r.title}{r.value ? ` ($${r.value})` : ""}</IndexTable.Cell>
+                  <IndexTable.Cell>{r.title}</IndexTable.Cell>
+                  <IndexTable.Cell>
+                    {r.discountCode
+                      ? `${r.discountCode} (${r.discountKind === "percentage" ? r.value + "%" : "$" + r.value})`
+                      : "—"}
+                  </IndexTable.Cell>
                   <IndexTable.Cell>{r.unlockCondition}</IndexTable.Cell>
                   <IndexTable.Cell>
                     <Badge tone={STATUS_TONE[r.status] ?? "info"}>{r.status}</Badge>
