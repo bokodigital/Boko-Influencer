@@ -198,6 +198,10 @@ model Reward {
   value           Decimal?
   status          RewardStatus @default(locked)
   unlockCondition String
+  discountCode      String?
+  discountKind      String?
+  endsAt            DateTime?
+  shopifyDiscountId String?
   createdAt       DateTime     @default(now())
 }
 
