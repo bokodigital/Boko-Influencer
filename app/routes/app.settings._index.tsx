@@ -31,6 +31,17 @@ export default function SettingsIndex() {
                   </BlockStack>
                 </Card>
               </Layout.Section>
+              <Layout.Section variant="oneHalf">
+                <Card>
+                  <BlockStack gap="300">
+                    <Text as="h2" variant="headingMd">Portal branding</Text>
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      Upload the logo shown to influencers on their dashboard. This is separate from the email logo.
+                    </Text>
+                    <Button url="/app/settings/portal">Manage portal branding</Button>
+                  </BlockStack>
+                </Card>
+              </Layout.Section>
             </Layout>
           </BlockStack>
         </Layout.Section>

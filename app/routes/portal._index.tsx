@@ -14,7 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     prisma.order.aggregate({ where: { influencerId: influencer.id }, _sum: { orderTotal: true } }),
     prisma.commission.groupBy({ by: ["status"], where: { influencerId: influencer.id }, _sum: { amount: true } }),
     influencer.shop
-      ? prisma.shopSettings.findUnique({ where: { shop: influencer.shop }, select: { logoUrl: true } })
+      ? prisma.shopSettings.findUnique({ where: { shop: influencer.shop }, select: { dashboardLogoUrl: true } })
       : Promise.resolve(null),
   ]);
 
@@ -34,7 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     orders,
     revenue: Number(revenueAgg._sum.orderTotal ?? 0),
     commissionByStatus,
-    logoUrl: settings?.logoUrl ?? null,
+    logoUrl: settings?.dashboardLogoUrl ?? null,
   });
 }
 
