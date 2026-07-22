@@ -119,7 +119,6 @@ export default function AppIndex() {
 
   const metrics: { label: string; value: string; caption?: string }[] = [
     { label: "Clicks", value: String(clicksCount) },
-    { label: "Add to cart", value: "N/A" },
     { label: "Purchases", value: String(purchasesCount) },
     { label: "Revenue", value: money(revenueTotal) },
     { label: "Active influencers", value: String(activeCount) },

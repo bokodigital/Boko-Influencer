@@ -82,7 +82,6 @@ export default function InfluencerDetail() {
   const maxVal = Math.max(clicks, orders, 1);
   const funnel: { label: string; value: number | null; display: string }[] = [
     { label: "Clicks", value: clicks, display: String(clicks) },
-    { label: "Added to cart", value: null, display: "N/A" },
     { label: "Purchases", value: orders, display: String(orders) },
   ];
 
