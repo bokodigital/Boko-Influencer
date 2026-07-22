@@ -101,7 +101,7 @@ export default function Register() {
   return (
     <div style={{ minHeight: "100vh", background: "#F8F9FC", padding: "3rem 1rem", fontFamily: "Poppins, sans-serif" }}>
       <div style={{ maxWidth: "520px", margin: "0 auto", background: "#FFFFFF", borderRadius: "12px", padding: "2.5rem", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-      <h1 style={{ fontSize: "26px", fontWeight: 700, marginBottom: "0.5rem" }}>Become an Influencer</h1>
+      <h1 style={{ fontSize: "26px", fontWeight: 700, marginBottom: "0.5rem" }}>Join our influencer program</h1>
       <p style={{ fontSize: "14px", color: "#000000", marginBottom: "1.5rem" }}>Apply to join our influencer program. We review every application and send you portal access once approved.</p>
       {actionData && "error" in actionData && actionData.error ? (
         <div style={{ background: "#fff0f0", border: "1px solid #d00", color: "#b00", padding: "10px 12px", borderRadius: "8px", marginBottom: "1rem", fontSize: "13px" }}>{actionData.error}</div>

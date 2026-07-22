@@ -89,15 +89,15 @@ export default function PortalOverview() {
         Share your code to start earning. Every click and order you generate is tracked here in real time.
       </p>
 
-      {/* Referral code — single dark band */}
-      <div style={{ background: "#000000", color: "#FFFFFF", borderRadius: "18px", padding: "1.75rem", marginBottom: "2rem" }}>
-        <div style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#CFCFCF", marginBottom: "8px" }}>
+      {/* Referral code — single dark band (compact) */}
+      <div style={{ background: "#000000", color: "#FFFFFF", borderRadius: "14px", padding: "1rem 1.25rem", marginBottom: "1.5rem", maxWidth: "520px" }}>
+        <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#CFCFCF", marginBottom: "6px" }}>
           Your code
         </div>
-        <div style={{ fontSize: "28px", fontWeight: 700, letterSpacing: "0.02em", marginBottom: "10px" }}>
+        <div style={{ fontSize: "20px", fontWeight: 700, letterSpacing: "0.02em", marginBottom: "6px" }}>
           {data.referralCode}
         </div>
-        <div style={{ fontSize: "13px", color: "#BDBDBD", wordBreak: "break-all" }}>{data.referralLink}</div>
+        <div style={{ fontSize: "12px", color: "#BDBDBD", wordBreak: "break-all" }}>{data.referralLink}</div>
       </div>
 
       {/* How to use */}
