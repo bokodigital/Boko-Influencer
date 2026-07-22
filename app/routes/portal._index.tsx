@@ -14,7 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     prisma.order.aggregate({ where: { influencerId: influencer.id }, _sum: { orderTotal: true } }),
     prisma.commission.groupBy({ by: ["status"], where: { influencerId: influencer.id }, _sum: { amount: true } }),
     influencer.shop
-      ? prisma.shopSettings.findUnique({ where: { shop: influencer.shop }, select: { dashboardLogoUrl: true } })
+      ? prisma.shopSettings.findUnique({ where: { shop: influencer.shop }, select: { dashboardLogoUrl: true, moduleCommissions: true, modulePayouts: true } })
       : Promise.resolve(null),
   ]);
 
@@ -35,6 +35,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     revenue: Number(revenueAgg._sum.orderTotal ?? 0),
     commissionByStatus,
     logoUrl: settings?.dashboardLogoUrl ?? null,
+    commissionsEnabled: settings?.moduleCommissions ?? true,
+    payoutsEnabled: settings?.modulePayouts ?? true,
   });
 }
 
@@ -77,12 +79,16 @@ export default function PortalOverview() {
         <StatCard label="Revenue generated" value={`$${data.revenue.toFixed(2)} AUD`} />
       </div>
 
-      <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "0.75rem" }}>Commission summary</h2>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-        <StatCard label="Pending" value={`$${data.commissionByStatus.pending.toFixed(2)}`} />
-        <StatCard label="Approved (owed)" value={`$${data.commissionByStatus.approved.toFixed(2)}`} />
-        <StatCard label="Paid out" value={`$${data.commissionByStatus.paid.toFixed(2)}`} />
-      </div>
+      {(data.commissionsEnabled || data.payoutsEnabled) ? (
+        <>
+          <h2 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "0.75rem" }}>Commission summary</h2>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {data.commissionsEnabled ? <StatCard label="Pending" value={`$${data.commissionByStatus.pending.toFixed(2)}`} /> : null}
+            {data.commissionsEnabled ? <StatCard label="Approved (owed)" value={`$${data.commissionByStatus.approved.toFixed(2)}`} /> : null}
+            {data.payoutsEnabled ? <StatCard label="Paid out" value={`$${data.commissionByStatus.paid.toFixed(2)}`} /> : null}
+          </div>
+        </>
+      ) : null}
     </PortalShell>
   );
 }

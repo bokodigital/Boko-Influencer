@@ -72,9 +72,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   let commissionsEnabled = true;
+  let payoutsEnabled = true;
   try {
-    const s = await prisma.shopSettings.findUnique({ where: { shop }, select: { moduleCommissions: true } });
-    if (s) commissionsEnabled = s.moduleCommissions;
+    const s = await prisma.shopSettings.findUnique({ where: { shop }, select: { moduleCommissions: true, modulePayouts: true } });
+    if (s) {
+      commissionsEnabled = s.moduleCommissions;
+      payoutsEnabled = s.modulePayouts;
+    }
   } catch (error) {
     console.error("Failed to load module settings", error);
   }
@@ -89,6 +93,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     owedTotal: Number(commissionAgg._sum.amount || 0),
     paidTotal: Number(payoutAgg._sum.amount || 0),
     commissionsEnabled,
+    payoutsEnabled,
     rows,
   });
 }
@@ -108,6 +113,7 @@ export default function AppIndex() {
     owedTotal,
     paidTotal,
     commissionsEnabled,
+    payoutsEnabled,
     rows,
   } = useLoaderData<typeof loader>();
 
@@ -119,7 +125,7 @@ export default function AppIndex() {
     { label: "Active influencers", value: String(activeCount) },
     { label: "Total influencers", value: String(influencerCount), caption: pendingCount + " pending review" },
     ...(commissionsEnabled ? [{ label: "Owed in commissions", value: money(owedTotal) }] : []),
-    { label: "Paid out", value: money(paidTotal) },
+    ...(payoutsEnabled ? [{ label: "Paid out", value: money(paidTotal) }] : []),
   ];
 
   return (
