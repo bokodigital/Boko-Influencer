@@ -7,7 +7,11 @@ import { notify } from "../lib/klaviyo.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  return json({ code: url.searchParams.get("code") || "" });
+  const code = url.searchParams.get("code") || "";
+  // The sign-up link is only meaningful when we know which store to register
+  // for (its portalCode). If there's no valid code, we hide it entirely.
+  const setting = code ? await prisma.shopSettings.findUnique({ where: { portalCode: code } }) : null;
+  return json({ code, validCode: Boolean(setting) });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -38,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function PortalLogin() {
   const fetcher = useFetcher<{ sent?: boolean; link?: string; message?: string }>();
-  const { code } = useLoaderData<typeof loader>();
+  const { code, validCode } = useLoaderData<typeof loader>();
 
   return (
     <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
@@ -81,7 +85,9 @@ export default function PortalLogin() {
             )}
           </div>
         )}
-        <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Don't have an account yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to join the program</a></div>
+        {validCode ? (
+          <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Don't have an account yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to join the program</a></div>
+        ) : null}
       </div>
     </div>
   );
