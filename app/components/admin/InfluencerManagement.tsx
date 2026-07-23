@@ -43,7 +43,7 @@ export default function InfluencerManagement({ influencers, registerUrl }: { inf
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", referralCode: "" });
 
-  const embedCode = `<iframe src="${registerUrl}" title="Join our influencer program" style="width:100%;max-width:600px;height:1000px;border:0;"></iframe>`;
+  const embedCode = `<iframe src="${registerUrl}" title="Join our influencer program" style="width:100%;max-width:600px;height:600px;border:0;"></iframe>`;
 
   const closeModal = useCallback(() => setModalOpen(false), []);
 
