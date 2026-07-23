@@ -44,7 +44,7 @@ export default function PortalLogin() {
     <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
       <div style={{ background: "#FFFFFF", padding: "2.5rem", borderRadius: "12px", width: "100%", maxWidth: "420px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
-          
+
           <div>
             <div style={{ fontWeight: 700, fontSize: "18px" }}>Influencer Rewards by Boko</div>
             <div style={{ fontSize: "13px", color: "#000000" }}>Sign in to view your dashboard</div>
@@ -59,12 +59,12 @@ export default function PortalLogin() {
               name="email"
               required
               placeholder="you@example.com"
-              style={{ width: "100%", padding: "10px 12px", border: "1px solid #000000", borderRadius: "8px", marginBottom: "1rem", boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "10px 12px", border: "1px solid #D9D9D9", borderRadius: "8px", marginBottom: "1rem", boxSizing: "border-box", fontFamily: "Poppins, sans-serif" }}
             />
             <button
               type="submit"
               disabled={fetcher.state !== "idle"}
-              style={{ width: "100%", padding: "12px", background: "#BFFC00", color: "#000", fontWeight: 700, border: "none", borderRadius: "8px", cursor: "pointer" }}
+              style={{ width: "100%", padding: "12px", background: "#000000", color: "#FFFFFF", fontWeight: 600, border: "none", borderRadius: "100px", cursor: "pointer", fontSize: "14px", fontFamily: "Poppins, sans-serif" }}
             >
               {fetcher.state !== "idle" ? "Sending..." : "Send login link"}
             </button>
@@ -75,7 +75,7 @@ export default function PortalLogin() {
           <div>
             <p style={{ fontSize: "14px", color: "#000000" }}>{fetcher.data.message}</p>
             {fetcher.data.link && (
-              <a href={fetcher.data.link} style={{ display: "inline-block", marginTop: "1rem", padding: "12px 16px", background: "#000", color: "#BFFC00", borderRadius: "8px", textDecoration: "none", fontWeight: 700 }}>
+              <a href={fetcher.data.link} style={{ display: "inline-block", marginTop: "1rem", padding: "12px 24px", background: "#000000", color: "#FFFFFF", borderRadius: "100px", textDecoration: "none", fontWeight: 600 }}>
                 Continue to dashboard
               </a>
             )}

@@ -84,8 +84,8 @@ export default function Register() {
   const actionData = useActionData<typeof action>();
   const nav = useNavigation();
   const submitting = nav.state !== "idle";
-  const inputStyle = { width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #000000", marginBottom: "1rem", boxSizing: "border-box" as const };
-  const labelStyle = { display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" };
+  const inputStyle = { width: "100%", padding: "8px 10px", borderRadius: "8px", border: "1px solid #D9D9D9", boxSizing: "border-box" as const, fontSize: "13px", fontFamily: "Poppins, sans-serif" };
+  const labelStyle = { display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "3px" };
 
   if (actionData && "ok" in actionData && actionData.ok) {
     return (
@@ -99,38 +99,34 @@ export default function Register() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F8F9FC", padding: "3rem 1rem", fontFamily: "Poppins, sans-serif" }}>
-      <div style={{ maxWidth: "520px", margin: "0 auto", background: "#FFFFFF", borderRadius: "12px", padding: "2.5rem", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-      <h1 style={{ fontSize: "26px", fontWeight: 700, marginBottom: "0.5rem" }}>Join our influencer program</h1>
-      <p style={{ fontSize: "14px", color: "#000000", marginBottom: "1.5rem" }}>Apply to join our influencer program. We review every application and send you portal access once approved.</p>
-      {actionData && "error" in actionData && actionData.error ? (
-        <div style={{ background: "#fff0f0", border: "1px solid #d00", color: "#b00", padding: "10px 12px", borderRadius: "8px", marginBottom: "1rem", fontSize: "13px" }}>{actionData.error}</div>
-      ) : null}
-      <Form method="post">
-        <input type="hidden" name="code" value={code} />
-        <label style={labelStyle}>First name</label>
-        <input name="firstName" style={inputStyle} required />
-        <label style={labelStyle}>Last name</label>
-        <input name="lastName" style={inputStyle} required />
-        <label style={labelStyle}>Email</label>
-        <input name="email" type="email" style={inputStyle} required />
-        <label style={labelStyle}>Phone</label>
-        <input name="phone" style={inputStyle} />
-        <label style={labelStyle}>Instagram handle</label>
-        <input name="instagramHandle" placeholder="@yourhandle" style={inputStyle} />
-        <label style={labelStyle}>TikTok handle</label>
-        <input name="tiktokHandle" placeholder="@yourhandle" style={inputStyle} />
-        <label style={labelStyle}>Audience size</label>
-        <input name="audienceSize" placeholder="e.g. 25,000 followers" style={inputStyle} />
-        <label style={labelStyle}>Why do you want to join?</label>
-        <textarea name="pitch" rows={4} style={{ ...inputStyle, resize: "vertical" as const }} />
-        <label style={labelStyle}>Choose a password</label>
-        <input name="password" type="password" minLength={8} style={inputStyle} required />
-        <button type="submit" disabled={submitting} style={{ width: "100%", padding: "12px", background: "#BFFC00", fontWeight: 700, border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "15px" }}>
+    <div style={{ background: "#FFFFFF", padding: "1.25rem", fontFamily: "Poppins, sans-serif", boxSizing: "border-box" as const }}>
+      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+        <h1 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px" }}>Join our influencer program</h1>
+        <p style={{ fontSize: "13px", color: "#555555", margin: "0 0 14px", lineHeight: 1.4 }}>Apply below — we review every application and email you access once approved.</p>
+        {actionData && "error" in actionData && actionData.error ? (
+          <div style={{ background: "#fff0f0", border: "1px solid #d00", color: "#b00", padding: "8px 10px", borderRadius: "8px", marginBottom: "10px", fontSize: "12px" }}>{actionData.error}</div>
+        ) : null}
+        <Form method="post">
+          <input type="hidden" name="code" value={code} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "12px", rowGap: "8px" }}>
+            <div><label style={labelStyle}>First name</label><input name="firstName" style={inputStyle} required /></div>
+            <div><label style={labelStyle}>Last name</label><input name="lastName" style={inputStyle} required /></div>
+            <div><label style={labelStyle}>Email</label><input name="email" type="email" style={inputStyle} required /></div>
+            <div><label style={labelStyle}>Phone</label><input name="phone" style={inputStyle} /></div>
+            <div><label style={labelStyle}>Instagram handle</label><input name="instagramHandle" placeholder="@yourhandle" style={inputStyle} /></div>
+            <div><label style={labelStyle}>TikTok handle</label><input name="tiktokHandle" placeholder="@yourhandle" style={inputStyle} /></div>
+            <div><label style={labelStyle}>Audience size</label><input name="audienceSize" placeholder="e.g. 25,000" style={inputStyle} /></div>
+            <div><label style={labelStyle}>Password</label><input name="password" type="password" minLength={8} style={inputStyle} required /></div>
+          </div>
+          <div style={{ marginTop: "8px" }}>
+            <label style={labelStyle}>Why do you want to join?</label>
+            <textarea name="pitch" rows={2} style={{ ...inputStyle, resize: "vertical" as const }} />
+          </div>
+          <button type="submit" disabled={submitting} style={{ width: "100%", marginTop: "12px", padding: "11px", background: "#000000", color: "#FFFFFF", fontWeight: 600, border: "none", borderRadius: "100px", cursor: "pointer", fontSize: "14px", fontFamily: "Poppins, sans-serif" }}>
           {submitting ? "Submitting..." : "Submit application"}
-        </button>
-      </Form>
-    </div>
+          </button>
+        </Form>
       </div>
+    </div>
   );
 }
