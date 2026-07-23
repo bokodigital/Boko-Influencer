@@ -45,7 +45,21 @@ export default function PortalLogin() {
   const { code, validCode } = useLoaderData<typeof loader>();
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#F8F9FC", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "Poppins, sans-serif", padding: "1rem" }}>
+      <div style={{ marginBottom: "1.25rem" }}>
+        <svg width="84" height="84" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Influencer Rewards by Boko">
+          <rect width="120" height="120" rx="26" fill="#5B5BF5" />
+          <path d="M60 44 L63.8 54.7 L75.2 55.1 L66.2 62 L69.4 72.9 L60 66.5 L50.6 72.9 L53.8 62 L44.8 55.1 L56.2 54.7 Z" fill="none" stroke="#9BD40B" strokeWidth="4" strokeLinejoin="round" />
+          <circle cx="30" cy="54" r="7.5" stroke="#FFFFFF" strokeWidth="4" fill="none" />
+          <path d="M20 78 v-2 a10 10 0 0 1 20 0 v2" stroke="#FFFFFF" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <circle cx="90" cy="54" r="7.5" stroke="#FFFFFF" strokeWidth="4" fill="none" />
+          <path d="M80 78 v-2 a10 10 0 0 1 20 0 v2" stroke="#FFFFFF" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M38 30 A32 32 0 0 1 86 34" stroke="#FFFFFF" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M79 31 L86 34 L83 41" stroke="#FFFFFF" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M82 90 A32 32 0 0 1 34 86" stroke="#FFFFFF" strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M41 89 L34 86 L37 79" stroke="#FFFFFF" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
       <div style={{ background: "#FFFFFF", padding: "2.5rem", borderRadius: "12px", width: "100%", maxWidth: "420px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
 
