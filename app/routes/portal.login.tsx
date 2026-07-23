@@ -81,7 +81,7 @@ export default function PortalLogin() {
             )}
           </div>
         )}
-        <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Not an influencer yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to become an influencer</a></div>
+        <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Don't have an account yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to join the program</a></div>
       </div>
     </div>
   );
