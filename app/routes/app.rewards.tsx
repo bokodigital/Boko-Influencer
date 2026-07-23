@@ -2,7 +2,7 @@ import { json } from "@remix-run/node";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { useState } from "react";
-import { Page, Layout, Card, IndexTable, Badge, Text, Button, BlockStack, FormLayout, Select, TextField, InlineStack } from "@shopify/polaris";
+import { Page, Layout, Card, IndexTable, Badge, Text, Button, BlockStack, FormLayout, Select, TextField, InlineStack, Tooltip } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { prisma } from "../lib/db.server";
 import BokoBanner from "../components/admin/BokoBanner";
@@ -153,7 +153,25 @@ export default function AppRewards() {
                       value={metric}
                       onChange={(v) => setMetric(v as typeof metric)}
                     />
-                    <TextField label="Threshold" type="number" value={threshold} onChange={setThreshold} autoComplete="off" />
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                        <Text as="span" variant="bodyMd">{metric === "revenue" ? "Monetary amount (AUD)" : "Threshold"}</Text>
+                        <Tooltip content={metric === "revenue"
+                          ? "The total sales revenue (in AUD) this influencer must generate before the reward unlocks — e.g. 500 unlocks it once they've driven $500 in orders."
+                          : "The number of converted referral orders this influencer must generate before the reward unlocks — e.g. 5 unlocks it after 5 orders."}>
+                          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "15px", height: "15px", borderRadius: "50%", border: "1px solid #8c9196", fontSize: "10px", lineHeight: 1, color: "#6d7175", cursor: "help", fontWeight: 600 }}>?</span>
+                        </Tooltip>
+                      </div>
+                      <TextField
+                        label={metric === "revenue" ? "Monetary amount (AUD)" : "Threshold"}
+                        labelHidden
+                        type="number"
+                        value={threshold}
+                        onChange={setThreshold}
+                        autoComplete="off"
+                        prefix={metric === "revenue" ? "$" : undefined}
+                      />
+                    </div>
                   </FormLayout.Group>
                   <Button submit variant="primary" disabled={!influencerId || !title || !discountCode || !value}>Create reward</Button>
                 </FormLayout>

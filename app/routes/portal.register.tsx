@@ -91,7 +91,7 @@ export default function Register() {
     return (
       <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem", fontFamily: "Poppins, sans-serif" }}>
         <div style={{ background: "#fff", borderRadius: "12px", padding: "2rem", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", textAlign: "center" }}>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "0.75rem" }}>Application received</h1>
+          <h1 style={{ fontSize: "22px", fontWeight: 600, marginBottom: "0.75rem" }}>Application received</h1>
           <p style={{ fontSize: "14px", lineHeight: 1.6 }}>Thanks for applying. Our team will review your application and email you an access link once you are approved.</p>
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function Register() {
   return (
     <div style={{ background: "#FFFFFF", padding: "1.25rem", fontFamily: "Poppins, sans-serif", boxSizing: "border-box" as const }}>
       <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "20px", fontWeight: 700, margin: "0 0 4px" }}>Join our influencer program</h1>
+        <h1 style={{ fontSize: "20px", fontWeight: 600, margin: "0 0 4px" }}>Join our influencer program</h1>
         <p style={{ fontSize: "13px", color: "#555555", margin: "0 0 14px", lineHeight: 1.4 }}>Apply below — we review every application and email you access once approved.</p>
         {actionData && "error" in actionData && actionData.error ? (
           <div style={{ background: "#fff0f0", border: "1px solid #d00", color: "#b00", padding: "8px 10px", borderRadius: "8px", marginBottom: "10px", fontSize: "12px" }}>{actionData.error}</div>

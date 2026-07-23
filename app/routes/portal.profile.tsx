@@ -58,7 +58,7 @@ export default function PortalProfile() {
 
   return (
     <PortalShell influencerName={influencerName}>
-      <h1 style={{ fontSize: "32px", fontWeight: 700, margin: "0 0 0.5rem", color: "#000000" }}>My profile</h1>
+      <h1 style={{ fontSize: "32px", fontWeight: 600, margin: "0 0 0.5rem", color: "#000000" }}>My profile</h1>
       <p style={{ fontSize: "14px", color: "#272727", margin: "0 0 2rem", maxWidth: "560px", lineHeight: 1.6 }}>
         Keep your details up to date so the store can reach you and credit your referrals correctly.
       </p>

@@ -61,7 +61,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ ...cardStyle, flex: 1, minWidth: "180px" }}>
       <div style={{ fontSize: "13px", color: "#6B6B6B", marginBottom: "8px" }}>{label}</div>
-      <div style={{ fontSize: "26px", fontWeight: 700, color: "#000000" }}>{value}</div>
+      <div style={{ fontSize: "26px", fontWeight: 600, color: "#000000" }}>{value}</div>
     </div>
   );
 }
@@ -82,7 +82,7 @@ export default function PortalOverview() {
         </div>
       ) : null}
 
-      <h1 style={{ fontSize: "32px", fontWeight: 700, margin: "0 0 0.5rem", color: "#000000" }}>
+      <h1 style={{ fontSize: "32px", fontWeight: 600, margin: "0 0 0.5rem", color: "#000000" }}>
         Welcome back, {data.firstName}
       </h1>
       <p style={{ fontSize: "14px", color: "#272727", margin: "0 0 2rem", lineHeight: 1.6, maxWidth: "560px" }}>
@@ -94,7 +94,7 @@ export default function PortalOverview() {
         <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", color: "#CFCFCF", marginBottom: "6px" }}>
           Your code
         </div>
-        <div style={{ fontSize: "20px", fontWeight: 700, letterSpacing: "0.02em", marginBottom: "6px" }}>
+        <div style={{ fontSize: "20px", fontWeight: 600, letterSpacing: "0.02em", marginBottom: "6px" }}>
           {data.referralCode}
         </div>
         <div style={{ fontSize: "12px", color: "#BDBDBD", wordBreak: "break-all" }}>{data.referralLink}</div>

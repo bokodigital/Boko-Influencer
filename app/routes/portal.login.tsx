@@ -57,7 +57,7 @@ export default function PortalLogin() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "1.5rem" }}>
 
           <div>
-            <div style={{ fontWeight: 700, fontSize: "18px" }}>Influencer Rewards by Boko</div>
+            <div style={{ fontWeight: 600, fontSize: "18px" }}>Influencer Rewards by Boko</div>
             <div style={{ fontSize: "13px", color: "#000000" }}>Sign in to view your dashboard</div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function PortalLogin() {
           </div>
         )}
         {validCode ? (
-          <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Don't have an account yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 700, textDecoration: "underline" }}>Apply to join the program</a></div>
+          <div style={{ marginTop: "1.5rem", paddingTop: "1.5rem", borderTop: "1px solid #E1E3E5", textAlign: "center" }}><span style={{ fontSize: "13px", color: "#000000" }}>Don't have an account yet? </span><a href={"/portal/register?code=" + code} style={{ fontSize: "13px", color: "#000000", fontWeight: 600, textDecoration: "underline" }}>Apply to join the program</a></div>
         ) : null}
       </div>
     </div>
