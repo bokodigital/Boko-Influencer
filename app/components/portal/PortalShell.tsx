@@ -21,7 +21,7 @@ export default function PortalShell({ influencerName, children }: { influencerNa
     <div style={{ minHeight: "100vh", background: "#FFFFFF", fontFamily: "Poppins, sans-serif", color: "#000000" }}>
       {/* Header — single black band */}
       <header style={{ background: "#000000", color: "#FFFFFF", padding: "1rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ fontWeight: 700, fontSize: "16px" }}>Influencer Rewards by Boko</div>
+        <div style={{ fontWeight: 600, fontSize: "16px" }}>Influencer Rewards by Boko</div>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span style={{ fontSize: "13px", color: "#CFCFCF" }}>{influencerName}</span>
           <Form method="post" action="/portal/logout">
@@ -47,7 +47,7 @@ export default function PortalShell({ influencerName, children }: { influencerNa
                   display: "block",
                   padding: "12px 1.5rem",
                   fontSize: "14px",
-                  fontWeight: active ? 700 : 500,
+                  fontWeight: active ? 600 : 500,
                   color: active ? "#000000" : "#6B6B6B",
                   background: active ? "#F8F9FC" : "transparent",
                   borderLeft: active ? "3px solid #000000" : "3px solid transparent",
