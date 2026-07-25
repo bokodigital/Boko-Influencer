@@ -93,6 +93,7 @@ model Influencer {
 
   referralLinks   ReferralLink[]
   clicks          Click[]
+  addToCarts      AddToCart[]
   referrals       Referral[]
   orders          Order[]
   commissionRules CommissionRule[]
@@ -128,6 +129,14 @@ model Click {
   deviceType     String?
   country        String?
   clickedAt      DateTime @default(now())
+}
+
+model AddToCart {
+  id           String     @id @default(cuid())
+  influencerId String
+  influencer   Influencer @relation(fields: [influencerId], references: [id])
+  ipHash       String
+  createdAt    DateTime   @default(now())
 }
 
 model Referral {
