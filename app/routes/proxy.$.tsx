@@ -1,12 +1,16 @@
 // Shopify App Proxy handler - Shopify signs and forwards storefront
 // requests from yourstore.com/apps/<subpath>/* to this route. Used by the
-// theme app extension for click tracking, so the storefront never talks to
-// our app domain directly (avoids CORS and lets Shopify verify the request
-// with an HMAC signature before it reaches us).
+// theme app extension for click and add-to-cart tracking, so the storefront
+// never talks to our app domain directly (avoids CORS and lets Shopify verify
+// the request with an HMAC signature before it reaches us).
 //
 // authenticate.public.appProxy(request) verifies that signature - if it's
 // missing or invalid, it throws/responds automatically. Only traffic that
 // genuinely came through Shopify's proxy reaches the code below.
+//
+// Subpaths:
+//   /apps/boko-influencer/track  -> log a click + set the attribution cookie
+//   /apps/boko-influencer/atc    -> log an add-to-cart for the influencer
 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -39,6 +43,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const ipHash = crypto.createHash("sha256").update(ip).digest("hex");
 
+  // Add-to-cart event
+  if (url.pathname.endsWith("/atc")) {
+    await prisma.addToCart.create({
+      data: { influencerId: influencer.id, ipHash },
+    });
+    return json({ ok: true, kind: "atc" });
+  }
+
+  // Default: click event (+ set/refresh the attribution cookie)
   await prisma.click.create({
     data: {
       influencerId: influencer.id,

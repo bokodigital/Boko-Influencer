@@ -36,8 +36,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Response("Influencer not found", { status: 404 });
   }
 
-  const [clicks, orders, revenueAgg, commissionAgg] = await Promise.all([
+  const [clicks, addToCarts, orders, revenueAgg, commissionAgg] = await Promise.all([
     prisma.click.count({ where: { influencerId: influencer.id } }),
+    prisma.addToCart.count({ where: { influencerId: influencer.id } }),
     prisma.order.count({ where: { influencerId: influencer.id } }),
     prisma.order.aggregate({ where: { influencerId: influencer.id }, _sum: { orderTotal: true } }),
     prisma.commission.groupBy({ by: ["status"], where: { influencerId: influencer.id }, _sum: { amount: true } }),
@@ -53,6 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({
     influencer,
     clicks,
+    addToCarts,
     orders,
     revenue: Number(revenueAgg._sum.orderTotal ?? 0),
     commissionByStatus,
@@ -76,13 +78,13 @@ function MetricCard({ label, value }: { label: string; value: string }) {
 }
 
 export default function InfluencerDetail() {
-  const { influencer, clicks, orders, revenue, commissionByStatus, referralLink } = useLoaderData<typeof loader>();
+  const { influencer, clicks, addToCarts, orders, revenue, commissionByStatus, referralLink } = useLoaderData<typeof loader>();
   const name = `${influencer.firstName} ${influencer.lastName}`.trim();
 
-  const maxVal = Math.max(clicks, orders, 1);
+  const maxVal = Math.max(clicks, addToCarts, orders, 1);
   const funnel: { label: string; value: number | null; display: string }[] = [
     { label: "Clicks", value: clicks, display: String(clicks) },
-    { label: "Added to cart", value: null, display: "N/A" },
+    { label: "Added to cart", value: addToCarts, display: String(addToCarts) },
     { label: "Purchases", value: orders, display: String(orders) },
   ];
 
@@ -112,9 +114,9 @@ export default function InfluencerDetail() {
 
             <InlineGrid columns={{ xs: 2, sm: 4 }} gap="400">
               <MetricCard label="Clicks" value={String(clicks)} />
+              <MetricCard label="Added to cart" value={String(addToCarts)} />
               <MetricCard label="Purchases" value={String(orders)} />
               <MetricCard label="Revenue" value={money(revenue)} />
-              <MetricCard label="Owed in commissions" value={money(commissionByStatus.approved + commissionByStatus.pending)} />
             </InlineGrid>
 
             <Card>
@@ -143,7 +145,7 @@ export default function InfluencerDetail() {
                   })}
                 </BlockStack>
                 <Text as="p" variant="bodySm" tone="subdued">
-                  Add-to-cart isn't tracked, so the funnel shows clicks and purchases only. Conversion:{" "}
+                  Conversion:{" "}
                   {clicks > 0 ? ((orders / clicks) * 100).toFixed(1) + "% of clicks became orders" : "no clicks yet"}.
                 </Text>
               </BlockStack>

@@ -9,8 +9,9 @@ import PortalShell from "../components/portal/PortalShell";
 export async function loader({ request }: LoaderFunctionArgs) {
   const influencer = await requirePortalInfluencer(request);
 
-  const [clicks, orders, revenueAgg, commissionAgg, settings] = await Promise.all([
+  const [clicks, addToCarts, orders, revenueAgg, commissionAgg, settings] = await Promise.all([
     prisma.click.count({ where: { influencerId: influencer.id } }),
+    prisma.addToCart.count({ where: { influencerId: influencer.id } }),
     prisma.order.count({ where: { influencerId: influencer.id } }),
     prisma.order.aggregate({ where: { influencerId: influencer.id }, _sum: { orderTotal: true } }),
     prisma.commission.groupBy({ by: ["status"], where: { influencerId: influencer.id }, _sum: { amount: true } }),
@@ -32,6 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     referralCode: influencer.referralCode,
     referralLink,
     clicks,
+    addToCarts,
     orders,
     revenue: Number(revenueAgg._sum.orderTotal ?? 0),
     commissionByStatus,
@@ -113,6 +115,7 @@ export default function PortalOverview() {
       <h2 style={sectionHeading}>Your performance</h2>
       <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: showSummary ? "2rem" : "0" }}>
         <StatCard label="Link clicks" value={String(data.clicks)} />
+        <StatCard label="Added to cart" value={String(data.addToCarts)} />
         <StatCard label="Orders referred" value={String(data.orders)} />
         <StatCard label="Revenue generated" value={`$${data.revenue.toFixed(2)} AUD`} />
       </div>

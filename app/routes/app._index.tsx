@@ -18,6 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     commissionAgg,
     payoutAgg,
     clicksCount,
+    addToCartCount,
     orderAgg,
     influencers,
   ] = await Promise.all([
@@ -33,6 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       where: { status: "completed", influencer: { shop } },
     }),
     prisma.click.count({ where: { influencer: { shop } } }),
+    prisma.addToCart.count({ where: { influencer: { shop } } }),
     prisma.order.aggregate({
       _sum: { orderTotal: true },
       _count: { _all: true },
@@ -47,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         lastName: true,
         referralCode: true,
         status: true,
-        _count: { select: { clicks: true, orders: true } },
+        _count: { select: { clicks: true, addToCarts: true, orders: true } },
         orders: { select: { orderTotal: true } },
         commissions: { select: { amount: true, status: true } },
       },
@@ -65,6 +67,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       code: inf.referralCode,
       status: inf.status,
       clicks: inf._count.clicks,
+      addToCarts: inf._count.addToCarts,
       purchases: inf._count.orders,
       revenue,
       owed,
@@ -88,6 +91,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     pendingCount,
     activeCount,
     clicksCount,
+    addToCartCount,
     purchasesCount: orderAgg._count._all,
     revenueTotal: Number(orderAgg._sum.orderTotal || 0),
     owedTotal: Number(commissionAgg._sum.amount || 0),
@@ -108,6 +112,7 @@ export default function AppIndex() {
     pendingCount,
     activeCount,
     clicksCount,
+    addToCartCount,
     purchasesCount,
     revenueTotal,
     owedTotal,
@@ -119,7 +124,7 @@ export default function AppIndex() {
 
   const metrics: { label: string; value: string; caption?: string }[] = [
     { label: "Clicks", value: String(clicksCount) },
-    { label: "Add to cart", value: "N/A" },
+    { label: "Add to cart", value: String(addToCartCount) },
     { label: "Purchases", value: String(purchasesCount) },
     { label: "Revenue", value: money(revenueTotal) },
     { label: "Active influencers", value: String(activeCount) },
@@ -170,19 +175,20 @@ export default function AppIndex() {
                   <DataTable
                     columnContentTypes={
                       commissionsEnabled
-                        ? ["text", "text", "numeric", "numeric", "numeric", "numeric"]
-                        : ["text", "text", "numeric", "numeric", "numeric"]
+                        ? ["text", "text", "numeric", "numeric", "numeric", "numeric", "numeric"]
+                        : ["text", "text", "numeric", "numeric", "numeric", "numeric"]
                     }
                     headings={
                       commissionsEnabled
-                        ? ["Influencer", "Code", "Clicks", "Purchases", "Revenue", "Owed"]
-                        : ["Influencer", "Code", "Clicks", "Purchases", "Revenue"]
+                        ? ["Influencer", "Code", "Clicks", "Add to cart", "Purchases", "Revenue", "Owed"]
+                        : ["Influencer", "Code", "Clicks", "Add to cart", "Purchases", "Revenue"]
                     }
                     rows={rows.map((r) => {
                       const base = [
                         <Link key={r.id} to={`/app/influencers/${r.id}`}>{r.name}</Link>,
                         r.code,
                         r.clicks,
+                        r.addToCarts,
                         r.purchases,
                         money(r.revenue),
                       ];
