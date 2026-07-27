@@ -79,6 +79,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json({ html: "<p>No template found for this event.</p>" }, { status: 404 });
   }
 
+  const renderedSubject = renderTemplate(template.subject, SAMPLE_PROPS);
   const renderedBody = renderTemplate(template.body, SAMPLE_PROPS);
   const body = normalizeBodyHtml(renderedBody);
   const html = applyBranding(body, {
@@ -86,6 +87,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     headingColor: settings?.headingColor,
     buttonColor: settings?.buttonColor,
     shopName: settings?.senderName,
+    heading: renderedSubject,
   });
 
   return json({ html });

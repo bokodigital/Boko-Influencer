@@ -192,6 +192,7 @@ export interface BrandingOptions {
   headingColor?: string | null;
   buttonColor?: string | null;
   shopName?: string | null;
+  heading?: string | null;
 }
 
 // Returns #ffffff or #000000 — whichever has better contrast against the given
@@ -208,7 +209,7 @@ function hexToTextColor(hex: string): "#ffffff" | "#000000" {
 
 const BOKO_FONT = "Helvetica,Arial,sans-serif";
 
-export function applyBranding(body: string, { logoUrl, headingColor, buttonColor, shopName }: BrandingOptions): string {
+export function applyBranding(body: string, { logoUrl, headingColor, buttonColor, shopName, heading }: BrandingOptions): string {
   const hColor = headingColor || "#000000";
   const bColor = buttonColor || "#000000";
   const btnTextColor = hexToTextColor(bColor);
@@ -256,7 +257,7 @@ export function applyBranding(body: string, { logoUrl, headingColor, buttonColor
     `<tr><td align="center" style="padding:40px 16px">`,
     `<table cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;max-width:600px;width:100%">`,
     logoRow,
-    `<tr><td style="padding:25px 20px;font-size:14px;line-height:1.6em;color:#202223;font-family:${BOKO_FONT}">${styled}</td></tr>`,
+    `<tr><td style="padding:25px 20px;font-size:14px;line-height:1.6em;color:#202223;font-family:${BOKO_FONT}">${heading ? `<h2 style="${headingStyle}">${heading}</h2>` : ""}${styled}</td></tr>`,
     `<tr><td align="center" style="padding:16px 20px;font-size:12px;color:#ffffff;background-color:#000000;font-family:${BOKO_FONT}">`,
     `You&#8217;re receiving this because you&#8217;re part of the ${shopName ? shopName + " " : ""}Influencer Program.`,
     `</td></tr>`,
@@ -292,6 +293,7 @@ async function sendBuiltInEmail(
     headingColor: settings?.headingColor,
     buttonColor: settings?.buttonColor,
     shopName: settings?.senderName,
+    heading: subject,
   });
   await deliverEmail(email, subject, html, from);
 }
