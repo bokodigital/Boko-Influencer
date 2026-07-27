@@ -13,20 +13,14 @@
     }
   }
 
-  // 1) Landing click: when the storefront loads with ?ref=, log the click and
-  //    set the attribution cookie (the app proxy handles both).
-  try {
-    var p = new URLSearchParams(window.location.search);
-    var urlRef = p.get("ref") || p.get("boko_ref");
-    if (urlRef) {
-      fetch("/apps/boko-influencer/track?ref=" + encodeURIComponent(urlRef), {
-        method: "GET",
-        credentials: "same-origin",
-      }).catch(function () {});
+  function isCartAdd(url) {
+    try {
+      return /\/cart\/add(\.js)?($|\?)/.test(String(url));
+    } catch (e) {
+      return false;
     }
-  } catch (e) {}
+  }
 
-  // 2) Add-to-cart tracking, attributed to the influencer if we have a ref.
   var lastAtc = 0;
   function trackAtc() {
     try {
@@ -43,31 +37,61 @@
     } catch (e) {}
   }
 
-  function isCartAdd(url) {
-    try {
-      return /\/cart\/add(\.js)?($|\?)/.test(String(url));
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Intercept AJAX add-to-cart via fetch()
+  // 1) Landing: when the storefront loads with ?ref=, set the attribution
+  //    cookie client-side (so it never depends on the proxy Set-Cookie header)
+  //    and log the click via the app proxy.
   try {
-    var origFetch = window.fetch;
-    if (origFetch) {
-      window.fetch = function (input, init) {
-        var url = typeof input === "string" ? input : input && input.url;
-        var method = (init && init.method) || (input && input.method) || "GET";
-        var res = origFetch.apply(this, arguments);
-        if (isCartAdd(url) && /post/i.test(method)) {
-          res.then(function (r) { if (r && r.ok) trackAtc(); }).catch(function () {});
-        }
-        return res;
-      };
+    var p = new URLSearchParams(window.location.search);
+    var urlRef = p.get("ref") || p.get("boko_ref");
+    if (urlRef) {
+      try {
+        document.cookie =
+          "boko_ref=" + encodeURIComponent(urlRef) +
+          "; path=/; max-age=2592000; SameSite=Lax";
+      } catch (e) {}
+      fetch("/apps/boko-influencer/track?ref=" + encodeURIComponent(urlRef), {
+        method: "GET",
+        credentials: "same-origin",
+      }).catch(function () {});
     }
   } catch (e) {}
 
-  // Intercept AJAX add-to-cart via XMLHttpRequest
+  // 2) Add-to-cart detection via fetch — CLOBBER-PROOF.
+  //    Other apps/themes often replace window.fetch after us. Instead of a
+  //    one-time wrap, we install an accessor so window.fetch ALWAYS returns our
+  //    wrapper, and if anyone reassigns window.fetch we transparently re-wrap
+  //    their function — keeping our hook permanently outermost.
+  function wrapFetch(fn) {
+    return function (input, init) {
+      var url = typeof input === "string" ? input : input && input.url;
+      var method = (init && init.method) || (input && input.method) || "GET";
+      var res = fn.apply(this, arguments);
+      try {
+        if (res && typeof res.then === "function" && isCartAdd(url) && /post/i.test(method)) {
+          res.then(function (r) { if (r && r.ok) trackAtc(); }).catch(function () {});
+        }
+      } catch (e) {}
+      return res;
+    };
+  }
+  try {
+    var currentFetch = window.fetch;
+    var wrappedFetch = wrapFetch(currentFetch);
+    Object.defineProperty(window, "fetch", {
+      configurable: true,
+      enumerable: true,
+      get: function () { return wrappedFetch; },
+      set: function (v) { currentFetch = v; wrappedFetch = wrapFetch(v); },
+    });
+  } catch (e) {
+    // Fallback: plain wrap if defineProperty is blocked.
+    try {
+      var of = window.fetch;
+      window.fetch = wrapFetch(of);
+    } catch (e2) {}
+  }
+
+  // 3) Add-to-cart detection via XMLHttpRequest.
   try {
     var origOpen = XMLHttpRequest.prototype.open;
     var origSend = XMLHttpRequest.prototype.send;
@@ -86,7 +110,7 @@
     };
   } catch (e) {}
 
-  // Fallback: classic (non-AJAX) add-to-cart form submissions
+  // 4) Fallback: classic (non-AJAX) add-to-cart form submissions.
   try {
     document.addEventListener(
       "submit",
