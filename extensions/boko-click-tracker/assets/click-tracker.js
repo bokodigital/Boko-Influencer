@@ -13,33 +13,8 @@
     }
   }
 
-  function isCartAdd(url) {
-    try {
-      return /\/cart\/add(\.js)?($|\?)/.test(String(url));
-    } catch (e) {
-      return false;
-    }
-  }
-
-  var lastAtc = 0;
-  function trackAtc() {
-    try {
-      var r = getRef();
-      if (!r) return;
-      var now = Date.now();
-      if (now - lastAtc < 800) return; // throttle duplicate fires for one add
-      lastAtc = now;
-      fetch("/apps/boko-influencer/atc?ref=" + encodeURIComponent(r), {
-        method: "POST",
-        credentials: "same-origin",
-        keepalive: true,
-      }).catch(function () {});
-    } catch (e) {}
-  }
-
-  // 1) Landing: when the storefront loads with ?ref=, set the attribution
-  //    cookie client-side (so it never depends on the proxy Set-Cookie header)
-  //    and log the click via the app proxy.
+  // 1) Landing: on ?ref=, set the attribution cookie client-side (so it never
+  //    depends on the proxy Set-Cookie header) and log the click via the proxy.
   try {
     var p = new URLSearchParams(window.location.search);
     var urlRef = p.get("ref") || p.get("boko_ref");
@@ -56,69 +31,60 @@
     }
   } catch (e) {}
 
-  // 2) Add-to-cart detection via fetch — CLOBBER-PROOF.
-  //    Other apps/themes often replace window.fetch after us. Instead of a
-  //    one-time wrap, we install an accessor so window.fetch ALWAYS returns our
-  //    wrapper, and if anyone reassigns window.fetch we transparently re-wrap
-  //    their function — keeping our hook permanently outermost.
-  function wrapFetch(fn) {
-    return function (input, init) {
-      var url = typeof input === "string" ? input : input && input.url;
-      var method = (init && init.method) || (input && input.method) || "GET";
-      var res = fn.apply(this, arguments);
-      try {
-        if (res && typeof res.then === "function" && isCartAdd(url) && /post/i.test(method)) {
-          res.then(function (r) { if (r && r.ok) trackAtc(); }).catch(function () {});
-        }
-      } catch (e) {}
-      return res;
-    };
-  }
-  try {
-    var currentFetch = window.fetch;
-    var wrappedFetch = wrapFetch(currentFetch);
-    Object.defineProperty(window, "fetch", {
-      configurable: true,
-      enumerable: true,
-      get: function () { return wrappedFetch; },
-      set: function (v) { currentFetch = v; wrappedFetch = wrapFetch(v); },
-    });
-  } catch (e) {
-    // Fallback: plain wrap if defineProperty is blocked.
+  // 2) Add-to-cart detection — THEME-AGNOSTIC.
+  //    Instead of intercepting the add request (which themes/apps implement in
+  //    many incompatible ways and can hide from a fetch/XHR wrapper), we watch
+  //    Shopify's own cart via /cart.js and fire whenever the item count rises.
+  //    This catches every add: product pages, quick-add, cart drawers, apps.
+  var lastCount = null;
+  var lastAtc = 0;
+
+  function fireAtc() {
     try {
-      var of = window.fetch;
-      window.fetch = wrapFetch(of);
-    } catch (e2) {}
+      var r = getRef();
+      if (!r) return;
+      var now = Date.now();
+      if (now - lastAtc < 1000) return;
+      lastAtc = now;
+      fetch("/apps/boko-influencer/atc?ref=" + encodeURIComponent(r), {
+        method: "POST",
+        credentials: "same-origin",
+        keepalive: true,
+      }).catch(function () {});
+    } catch (e) {}
   }
 
-  // 3) Add-to-cart detection via XMLHttpRequest.
-  try {
-    var origOpen = XMLHttpRequest.prototype.open;
-    var origSend = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.open = function (method, url) {
-      this.__bokoAtc = isCartAdd(url) && /post/i.test(method || "");
-      return origOpen.apply(this, arguments);
-    };
-    XMLHttpRequest.prototype.send = function () {
-      var self = this;
-      if (self.__bokoAtc) {
-        self.addEventListener("load", function () {
-          if (self.status >= 200 && self.status < 300) trackAtc();
-        });
-      }
-      return origSend.apply(this, arguments);
-    };
-  } catch (e) {}
+  function readCartCount(cb) {
+    try {
+      fetch("/cart.js", { credentials: "same-origin", headers: { Accept: "application/json" } })
+        .then(function (r) { return r.json(); })
+        .then(function (c) { cb(c && typeof c.item_count === "number" ? c.item_count : null); })
+        .catch(function () {});
+    } catch (e) {}
+  }
 
-  // 4) Fallback: classic (non-AJAX) add-to-cart form submissions.
-  try {
-    document.addEventListener(
-      "submit",
-      function (e) {
-        var form = e.target;
-        if (form && form.action && isCartAdd(form.action)) trackAtc();
-      },
-      true
-    );
-  } catch (e) {}
+  function checkCart() {
+    readCartCount(function (n) {
+      if (n == null) return;
+      if (lastCount != null && n > lastCount) fireAtc();
+      lastCount = n;
+    });
+  }
+
+  // Establish the baseline count, then watch for increases.
+  readCartCount(function (n) { lastCount = n; });
+  setInterval(checkCart, 2500);
+  window.addEventListener("focus", checkCart);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) checkCart();
+  });
+  // Re-check shortly after any click so a button-triggered add registers fast.
+  document.addEventListener(
+    "click",
+    function () {
+      setTimeout(checkCart, 700);
+      setTimeout(checkCart, 1600);
+    },
+    true
+  );
 })();
